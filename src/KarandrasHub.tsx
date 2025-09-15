@@ -153,7 +153,7 @@ export default function KarandrasHub() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ type: "spring", stiffness: 260, damping: 28 }}
-                      className={\`
+                      className={`
                         absolute z-20 w-[260px] max-w-sm
                         \${n.id === "stats" ? "top-full left-1/2 -translate-x-1/2 mt-2" : ""}
                         \${n.id === "weapons" ? "right-full top-1/2 -translate-y-1/2 mr-2" : ""}
