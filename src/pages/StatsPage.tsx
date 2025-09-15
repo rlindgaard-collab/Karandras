@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../components/Card";
-import Shield from "lucide-react";
+import { Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function StatsPage() {

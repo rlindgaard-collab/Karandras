@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../components/Card";
-import Sword from "lucide-react";
+import { Sword } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function WeaponsPage() {
