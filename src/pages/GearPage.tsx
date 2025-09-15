@@ -14,9 +14,9 @@ export default function GearPage() {
         </CardHeader>
         <CardContent className="text-gray-300 space-y-3">
           <ul className="list-disc list-inside space-y-1">
-            <li>Shadow-weave Cloak (dampens sound, disrupts outlines)</li>
-            <li>Hunter’s Kit (snares, chalk, oil, fine saw)</li>
-            <li>Vial of Night-moss (mask scent; stains fingers green)</li>
+            <li>Shadow-weave Cloak</li>
+            <li>Hunter’s Kit</li>
+            <li>Vial of Night-moss</li>
           </ul>
         </CardContent>
       </Card>

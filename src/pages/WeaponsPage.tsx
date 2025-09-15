@@ -8,7 +8,7 @@ export default function WeaponsPage() {
       <Card className="max-w-2xl w-full border-emerald-900/40 bg-gray-900/90 backdrop-blur">
         <CardHeader className="flex justify-between items-center">
           <CardTitle className="flex items-center gap-2 text-emerald-400">
-            <Sword className="h-5 w-5" /> Weapons
+            <Sword className="h-5 w-5" /> Våben
           </CardTitle>
           <Link to="/" className="text-sm text-emerald-400 hover:underline">← Tilbage</Link>
         </CardHeader>

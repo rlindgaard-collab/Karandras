@@ -27,6 +27,69 @@ const baseNodes = [
 
 type NodeId = typeof baseNodes[number]["id"];
 
+function InfoCard({ id }: { id: NodeId }) {
+  if (id === "stats") return (
+    <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-emerald-400">
+          <Shield className="h-4 w-4" /> Stats
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-3 gap-2">
+          {characterData.stats.map((s) => (
+            <div key={s.key} className="rounded-xl border border-gray-800 bg-gray-950/40 p-3 text-center">
+              <div className="text-[10px] uppercase tracking-wide text-gray-400">{s.key}</div>
+              <div className="text-lg font-semibold text-emerald-300">{s.value}</div>
+              <div className="text-[10px] text-gray-500">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+  if (id === "weapons") return (
+    <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-emerald-400">
+          <Sword className="h-4 w-4" /> Våben
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-gray-300">Twin Blades: A pair of lean, serrated blades...</p>
+      </CardContent>
+    </Card>
+  );
+  if (id === "gear") return (
+    <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-emerald-400">
+          <Backpack className="h-4 w-4" /> Gear
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ul className="list-disc list-inside text-sm text-gray-300">
+          <li>Shadow-weave Cloak</li>
+          <li>Hunter’s Kit</li>
+          <li>Vial of Night-moss</li>
+        </ul>
+      </CardContent>
+    </Card>
+  );
+  return (
+    <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-emerald-400">
+          <ScrollText className="h-4 w-4" /> Historie
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-gray-300">Few have seen Karandras move—fewer still knew they were watched...</p>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function KarandrasHub() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [active, setActive] = useState<NodeId | null>(null);
@@ -57,77 +120,11 @@ export default function KarandrasHub() {
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-950 via-gray-900 to-black text-gray-200">
       <div className="mx-auto max-w-5xl px-4 py-10">
-        <div className="mb-8 flex items-end justify-between">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-emerald-400">
-              {characterData.name}
-            </h1>
-            <p className="text-sm text-gray-400">
-              {characterData.ancestry} <span className="text-gray-300">{characterData.class}</span>
-            </p>
-          </div>
-        </div>
-
+        <h1 className="text-3xl font-semibold text-emerald-400 mb-6">{characterData.name}</h1>
         <div
           ref={containerRef}
           className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-gray-800 bg-[radial-gradient(ellipse_at_center,rgba(16,24,16,0.35),rgba(2,4,2,0.7))] shadow-[0_0_40px_rgba(16,185,129,0.08)]"
         >
-          <svg className="pointer-events-none absolute inset-0 h-full w-full">
-            <defs>
-              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
-                <feMerge>
-                  <feMergeNode in="coloredBlur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-
-            {nodes.map((n) => {
-              const isActive = active === n.id;
-              const np = nodePositions[n.id] ?? centerPx;
-              const x1 = centerPx.x;
-              const y1 = centerPx.y;
-              const x2 = np.x;
-              const y2 = np.y;
-
-              return (
-                <AnimatePresence key={`line-${n.id}`}>
-                  {isActive && (
-                    <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <motion.line
-                        x1={x1}
-                        y1={y1}
-                        x2={x2}
-                        y2={y2}
-                        stroke="#10b981"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        filter="url(#glow)"
-                        initial={{ pathLength: 0 }}
-                        animate={{ pathLength: 1 }}
-                        transition={{ duration: 0.5, ease: "easeOut" }}
-                      />
-                      <motion.line
-                        x1={x1}
-                        y1={y1}
-                        x2={x2}
-                        y2={y2}
-                        stroke="#10b981"
-                        strokeWidth={10}
-                        strokeLinecap="round"
-                        opacity={0.08}
-                        filter="url(#glow)"
-                        animate={{ opacity: [0.04, 0.12, 0.04] }}
-                        transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-                      />
-                    </motion.g>
-                  )}
-                </AnimatePresence>
-              );
-            })}
-          </svg>
-
           {nodes.map((n) => {
             const Icon = n.icon;
             const isActive = active === n.id;
@@ -136,17 +133,29 @@ export default function KarandrasHub() {
               left: n.anchor.left,
               transform: "translate(-50%, -50%)",
             };
-
             return (
               <div key={n.id} className="absolute" style={posStyle}>
                 <button
                   onClick={() => navigate(`/${n.id}`)}
                   onMouseEnter={() => setActive(n.id)}
                   onMouseLeave={() => setActive((prev) => (prev === n.id ? null : prev))}
-                  className="group relative grid place-items-center rounded-full border border-emerald-800/40 bg-gray-900/70 p-3 backdrop-blur-sm transition focus:outline-none"
+                  className="group relative grid place-items-center rounded-full border border-emerald-800/40 bg-gray-900/70 p-3"
                 >
-                  <Icon className="h-6 w-6 text-emerald-400 transition group-hover:scale-110" />
+                  <Icon className="h-6 w-6 text-emerald-400" />
                 </button>
+                <AnimatePresence>
+                  {isActive && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 260, damping: 28 }}
+                      className="absolute z-20 w-[260px] max-w-sm top-full left-1/2 -translate-x-1/2 mt-2"
+                    >
+                      <InfoCard id={n.id as NodeId} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             );
           })}
