@@ -182,11 +182,11 @@ export default function KarandrasHub() {
                 <AnimatePresence>
                   {isActive && (
                     <motion.div
-                      initial={{ opacity: 0, y: 6, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ type: "spring", stiffness: 260, damping: 28 }}
-                      className="absolute z-10 mt-3 min-w-[240px] -translate-x-1/2 sm:min-w-[300px]"
+                      className="absolute left-1/2 top-1/2 z-20 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2"
                     >
                       <InfoCard id={n.id as NodeId} />
                     </motion.div>
