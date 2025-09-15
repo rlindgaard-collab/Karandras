@@ -149,44 +149,17 @@ export default function KarandrasHub() {
 
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <motion.div
-              className="relative h-40 w-40 overflow-hidden rounded-full border border-gray-700 shadow-[0_0_0_6px_rgba(16,24,16,0.7)]"
-              whileHover={{
-                boxShadow:
-                  "0 0 0 6px rgba(16,185,129,0.15), 0 0 120px rgba(16,185,129,0.08)",
-              }}
-            >
-              <img src={portraitUrl} alt="Karandras portrait" className="h-full w-full object-cover" />
-              <div className="pointer-events-none absolute inset-0 rounded-full ring-2 ring-emerald-600/20" />
-            </motion.div>
-          </div>
-
-          {nodes.map((n) => {
-            const Icon = n.icon;
-            const isActive = active === n.id;
-            const posStyle: React.CSSProperties = {
-              top: n.anchor.top,
-              left: n.anchor.left,
-              transform: "translate(-50%, -50%)",
-            };
-
-            return (
-              <div key={n.id} className="absolute" style={posStyle}>
-                <button
-                  onMouseEnter={() => setActive(n.id)}
-                  onMouseLeave={() => setActive((prev) => (prev === n.id ? null : prev))}
-                  className="group relative grid place-items-center rounded-full border border-emerald-800/40 bg-gray-900/70 p-3 backdrop-blur-sm transition focus:outline-none"
-                >
-                  <Icon className="h-6 w-6 text-emerald-400 transition group-hover:scale-110" />
-                </button>
-
-                <AnimatePresence>
-                  {isActive && (
-                    <motion.div
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ type: "spring", stiffness: 260, damping: 28 }}
-                      className="absolute left-1/2 top-1/2 z-20 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2"
+                      className={\`
+                        absolute z-20 w-[260px] max-w-sm
+                        \${n.id === "stats" ? "top-full left-1/2 -translate-x-1/2 mt-2" : ""}
+                        \${n.id === "weapons" ? "right-full top-1/2 -translate-y-1/2 mr-2" : ""}
+                        \${n.id === "gear" ? "bottom-full left-1/2 -translate-x-1/2 mb-2" : ""}
+                        \${n.id === "story" ? "left-full top-1/2 -translate-y-1/2 ml-2" : ""}
+                      \`}
                     >
                       <InfoCard id={n.id as NodeId} />
                     </motion.div>
