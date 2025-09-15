@@ -187,11 +187,11 @@ export default function KarandrasHub() {
                         n.id === "stats" &&
                           "top-full left-1/2 -translate-x-1/2 mt-2",
                         n.id === "weapons" &&
-                          "right-full top-1/2 -translate-y-1/2 mr-2",
+                          "right-full top-1/2 -translate-y-1/2 mr-2 max-h-[80vh] overflow-y-auto",
                         n.id === "gear" &&
                           "bottom-full left-1/2 -translate-x-1/2 mb-2",
                         n.id === "story" &&
-                          "left-full top-1/2 -translate-y-1/2 ml-2",
+                          "left-full top-1/2 -translate-y-1/2 ml-2 max-h-[80vh] overflow-y-auto",
                       ]
                         .filter(Boolean)
                         .join(" ")}
