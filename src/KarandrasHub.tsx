@@ -187,11 +187,11 @@ export default function KarandrasHub() {
                         n.id === "stats" &&
                           "top-full left-1/2 -translate-x-1/2 mt-2",
                         n.id === "weapons" &&
-                          "right-full top-1/2 -translate-y-1/2 mr-2 max-h-[80vh] overflow-y-auto",
+                          "right-full top-1/2 -translate-y-1/2 mr-2",
                         n.id === "gear" &&
                           "bottom-full left-1/2 -translate-x-1/2 mb-2",
                         n.id === "story" &&
-                          "left-full top-1/2 -translate-y-1/2 ml-2 max-h-[80vh] overflow-y-auto",
+                          "left-full top-1/2 -translate-y-1/2 ml-2",
                       ]
                         .filter(Boolean)
                         .join(" ")}
@@ -247,6 +247,8 @@ function StatsCard() {
 }
 
 function WeaponsCard() {
+  const weapon = characterData.weapons[0]; // Kun Twin Blades
+
   return (
     <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur">
       <CardHeader className="pb-2">
@@ -254,19 +256,12 @@ function WeaponsCard() {
           <Sword className="h-4 w-4" /> Våben
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {characterData.weapons.map((w, i) => (
-          <div
-            key={i}
-            className="rounded-xl border border-gray-800 bg-gray-950/40 p-3"
-          >
-            <div className="flex items-center justify-between">
-              <div className="font-medium text-emerald-300">{w.name}</div>
-              <div className="text-xs text-gray-400">{w.type}</div>
-            </div>
-            <p className="mt-1 text-sm text-gray-300">{w.notes}</p>
-          </div>
-        ))}
+      <CardContent>
+        <div className="mb-1 flex items-center justify-between">
+          <span className="font-medium text-emerald-300">{weapon.name}</span>
+          <span className="text-xs text-gray-400">{weapon.type}</span>
+        </div>
+        <p className="text-sm leading-relaxed text-gray-300">{weapon.notes}</p>
       </CardContent>
     </Card>
   );
