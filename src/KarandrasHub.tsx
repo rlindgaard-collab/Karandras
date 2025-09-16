@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const portraitUrl = "/karandras.png"; // billedet i public/
 
 const characterData = {
-  name: "Karandras The Shadow Hunter",
+  name: "Karandras",
   ancestry: "Half-elf",
   class: "Ranger",
   stats: [
