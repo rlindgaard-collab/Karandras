@@ -148,9 +148,11 @@ export default function KarandrasHub() {
         >
           {/* Fog + portræt i midten */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            {/* Fog bag billedet */}
+            {/* Flere lag tåge bag billedet */}
             <div className="absolute inset-0 -z-10 overflow-hidden">
               <div className="fog-layer"></div>
+              <div className="fog-layer delay-1"></div>
+              <div className="fog-layer delay-2"></div>
             </div>
 
             {/* Portræt */}
