@@ -64,7 +64,7 @@ function InfoCard({ id }: { id: NodeId }) {
       <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-emerald-400">
-            <Sword className="h-4 w-4" /> Våben
+            <Sword className="h-4 w-4" /> Weapons
           </CardTitle>
         </CardHeader>
         <CardContent>
