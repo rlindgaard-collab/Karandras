@@ -97,7 +97,7 @@ function InfoCard({ id }: { id: NodeId }) {
     <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-emerald-400">
-          <ScrollText className="h-4 w-4" /> Historie
+          <ScrollText className="h-4 w-4" /> Background
         </CardTitle>
       </CardHeader>
       <CardContent>
