@@ -10,7 +10,7 @@ export default function StatsPage() {
           <CardTitle className="flex items-center gap-2 text-emerald-400">
             <Shield className="h-5 w-5" /> Stats
           </CardTitle>
-          <Link to="/" className="text-sm text-emerald-400 hover:underline">← Tilbage</Link>
+          <Link to="/" className="text-sm text-emerald-400 hover:underline">← Back</Link>
         </CardHeader>
         <CardContent className="text-gray-300 space-y-3">
           <p>Her kan du uddybe stats med detaljer, baggrund og level progression.</p>
