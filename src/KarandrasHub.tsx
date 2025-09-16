@@ -151,7 +151,7 @@ export default function KarandrasHub() {
             <img
               src={portraitUrl}
               alt="Karandras portrait"
-              className="h-56 w-56 rounded-full border-4 border-emerald-700 shadow-lg object-cover object-top slow-pulse relative z-10"
+              className="h-56 w-56 rounded-full border-4 border-emerald-700 shadow-lg object-cover object-top slow-pulse"
             />
           </div>
 
@@ -171,9 +171,9 @@ export default function KarandrasHub() {
                   onMouseLeave={() =>
                     setActive((prev) => (prev === n.id ? null : prev))
                   }
-                  className="group relative grid place-items-center rounded-full border border-emerald-800/40 bg-gray-900/70 p-3"
+                  className="group relative grid place-items-center rounded-full border border-emerald-800/40 bg-gray-900/70 p-3 transition duration-300 hover:border-emerald-400 hover:shadow-[0_0_15px_rgba(16,185,129,0.8)]"
                 >
-                  <Icon className="h-6 w-6 text-emerald-400" />
+                  <Icon className="h-6 w-6 text-emerald-400 transition duration-300 group-hover:text-emerald-300 group-hover:scale-110" />
                 </button>
                 <AnimatePresence>
                   {isActive && (
