@@ -22,9 +22,9 @@ const characterData = {
 
 const baseNodes = [
   { id: "stats", label: "Stats", icon: Shield, anchor: { top: "8%", left: "50%" } },
-  { id: "weapons", label: "Våben", icon: Sword, anchor: { top: "50%", left: "92%" } },
+  { id: "weapons", label: "Weapons", icon: Sword, anchor: { top: "50%", left: "92%" } },
   { id: "gear", label: "Gear", icon: Backpack, anchor: { top: "88%", left: "50%" } },
-  { id: "story", label: "Historie", icon: ScrollText, anchor: { top: "50%", left: "8%" } },
+  { id: "story", label: "Story", icon: ScrollText, anchor: { top: "50%", left: "8%" } },
 ] as const;
 
 type NodeId = typeof baseNodes[number]["id"];
