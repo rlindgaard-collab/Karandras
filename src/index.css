@@ -6,48 +6,60 @@ body {
   @apply bg-gray-900 text-gray-100;
 }
 
-/* Pulse (langsommere) */
-@keyframes slowPulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.85; }
-}
-.slow-pulse {
-  animation: slowPulse 6s ease-in-out infinite;
+/* Pulse langsomt */
+@keyframes slow-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.04);
+  }
 }
 
-/* Smoke effect */
+.slow-pulse {
+  animation: slow-pulse 6s ease-in-out infinite;
+}
+
+/* Smoke / tåge */
 @keyframes smoke {
   0% {
     transform: scale(1) translateY(0);
-    opacity: 0.6;
+    opacity: 0.45;
   }
   50% {
-    transform: scale(1.5) translateY(-20px);
-    opacity: 0.3;
+    transform: scale(1.7) translateY(-35px);
+    opacity: 0.2;
   }
   100% {
-    transform: scale(2) translateY(-40px);
+    transform: scale(2.3) translateY(-70px);
     opacity: 0;
   }
 }
 
 .smoke-circle {
   position: absolute;
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, rgba(55,65,81,0.4) 0%, transparent 70%);
-  border-radius: 50%;
   top: 50%;
   left: 50%;
+  width: 260%;
+  height: 260%;
+  background: radial-gradient(
+    circle,
+    rgba(40, 60, 40, 0.35) 0%,     /* mørk grøn-grå midte */
+    rgba(16, 185, 129, 0.12) 40%,  /* emerald tåge */
+    transparent 80%                /* falmer ud */
+  );
   transform: translate(-50%, -50%);
-  animation: smoke 10s ease-in-out infinite;
+  border-radius: 50%;
+  animation: smoke 14s infinite ease-in-out;
+  pointer-events: none;
   z-index: 0;
 }
 
-/* Flere lag med forskudt timing */
 .smoke-circle.delay-1 {
-  animation-delay: 3s;
+  animation-delay: 5s;
 }
 .smoke-circle.delay-2 {
-  animation-delay: 6s;
+  animation-delay: 10s;
 }
