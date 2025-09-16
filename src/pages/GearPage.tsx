@@ -10,7 +10,7 @@ export default function GearPage() {
           <CardTitle className="flex items-center gap-2 text-emerald-400">
             <Backpack className="h-5 w-5" /> Gear
           </CardTitle>
-          <Link to="/" className="text-sm text-emerald-400 hover:underline">← Tilbage</Link>
+          <Link to="/" className="text-sm text-emerald-400 hover:underline">← Back</Link>
         </CardHeader>
         <CardContent className="text-gray-300 space-y-3">
           <ul className="list-disc list-inside space-y-1">
