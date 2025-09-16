@@ -147,11 +147,11 @@ export default function KarandrasHub() {
           className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-gray-800 bg-[radial-gradient(ellipse_at_center,rgba(16,24,16,0.35),rgba(2,4,2,0.7))] shadow-[0_0_40px_rgba(16,185,129,0.08)]"
         >
           {/* Portræt i midten */}
-          <div className="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2">
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <img
               src={portraitUrl}
               alt="Karandras portrait"
-              className="h-56 w-56 rounded-full border-4 border-emerald-700 shadow-lg object-cover slow-pulse"
+              className="h-56 w-56 rounded-full border-4 border-emerald-700 shadow-lg object-cover object-top slow-pulse"
             />
           </div>
 
