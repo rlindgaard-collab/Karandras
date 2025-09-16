@@ -25,16 +25,16 @@ body {
 /* Tåge animation */
 @keyframes fog-move {
   0% {
-    transform: translateX(-30%) scale(1);
-    opacity: 0.25;
+    transform: translate(-20%, 10%) scale(1);
+    opacity: 0.55;
   }
   50% {
-    transform: translateX(30%) scale(1.4);
+    transform: translate(20%, -10%) scale(1.3);
     opacity: 0.35;
   }
   100% {
-    transform: translateX(-30%) scale(1);
-    opacity: 0.25;
+    transform: translate(-20%, 10%) scale(1);
+    opacity: 0.55;
   }
 }
 
@@ -43,29 +43,34 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 600%;   /* fylder HELE kortet */
-  height: 600%;
+  width: 500%;   /* fylder hele kortet */
+  height: 500%;
   background: radial-gradient(
     circle,
-    rgba(50, 50, 50, 0.25) 0%, 
-    rgba(20, 20, 20, 0.12) 40%, 
+    rgba(90, 130, 90, 0.5) 0%,   /* grøngrå midte */
+    rgba(60, 90, 60, 0.25) 40%,  /* falmer */
     transparent 80%
   );
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  filter: blur(150px);          /* gør tågen diffus */
-  animation: fog-move 60s ease-in-out infinite; /* langsom bevægelse */
+  filter: blur(100px);           
+  animation: fog-move 45s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
 }
 
-/* Ekstra lag med delays */
+/* Ekstra lag med forskudte delays */
 .fog-layer.delay-1 {
-  animation-delay: 20s;
-  opacity: 0.3;
+  animation-delay: 15s;
+  opacity: 0.45;
 }
 
 .fog-layer.delay-2 {
-  animation-delay: 40s;
-  opacity: 0.2;
+  animation-delay: 30s;
+  opacity: 0.35;
+}
+
+.fog-layer.delay-3 {
+  animation-delay: 60s;
+  opacity: 0.25;
 }
