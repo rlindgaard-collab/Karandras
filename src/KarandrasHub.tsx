@@ -146,16 +146,15 @@ export default function KarandrasHub() {
           ref={containerRef}
           className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-gray-800 bg-[radial-gradient(ellipse_at_center,rgba(16,24,16,0.35),rgba(2,4,2,0.7))] shadow-[0_0_40px_rgba(16,185,129,0.08)]"
         >
-          {/* Fog + portræt i midten */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            {/* Flere lag tåge bag billedet */}
-            <div className="absolute inset-0 -z-10 overflow-hidden">
-              <div className="fog-layer"></div>
-              <div className="fog-layer delay-1"></div>
-              <div className="fog-layer delay-2"></div>
-            </div>
+          {/* Tåge fylder hele kortet */}
+          <div className="absolute inset-0 -z-10 overflow-hidden">
+            <div className="fog-layer"></div>
+            <div className="fog-layer delay-1"></div>
+            <div className="fog-layer delay-2"></div>
+          </div>
 
-            {/* Portræt */}
+          {/* Portræt i midten */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <img
               src={portraitUrl}
               alt="Karandras portrait"
