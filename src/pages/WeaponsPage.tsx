@@ -10,7 +10,7 @@ export default function WeaponsPage() {
           <CardTitle className="flex items-center gap-2 text-emerald-400">
             <Sword className="h-5 w-5" /> Våben
           </CardTitle>
-          <Link to="/" className="text-sm text-emerald-400 hover:underline">← Tilbage</Link>
+          <Link to="/" className="text-sm text-emerald-400 hover:underline">← Back</Link>
         </CardHeader>
         <CardContent className="text-gray-300 space-y-3">
           <p><strong>Twin Blades</strong>: A pair of lean, serrated blades. Balanced for ambushes and rapid follow-through.</p>
