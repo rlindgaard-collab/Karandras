@@ -4,12 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "./components/Card";
 import { Shield, Sword, Backpack, ScrollText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+const portraitUrl = "/karandras.png"; // 👈 billedet i public-mappen
+
 const characterData = {
   name: "Karandras",
   ancestry: "Half-elf",
   class: "Ranger",
   stats: [
-    { key: "STR", label: "Strength", value: 20 },
+    { key: "STR", label: "Strength", value: 14 },
     { key: "DEX", label: "Dexterity", value: 18 },
     { key: "CON", label: "Constitution", value: 14 },
     { key: "INT", label: "Intelligence", value: 12 },
@@ -144,6 +146,15 @@ export default function KarandrasHub() {
           ref={containerRef}
           className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-gray-800 bg-[radial-gradient(ellipse_at_center,rgba(16,24,16,0.35),rgba(2,4,2,0.7))] shadow-[0_0_40px_rgba(16,185,129,0.08)]"
         >
+          {/* Portræt i midten */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <img
+              src={portraitUrl}
+              alt="Karandras portrait"
+              className="h-56 w-56 rounded-full border-4 border-emerald-700 shadow-lg object-cover animate-pulse"
+            />
+          </div>
+
           {nodes.map((n) => {
             const Icon = n.icon;
             const isActive = active === n.id;
