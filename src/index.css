@@ -20,3 +20,42 @@ body {
 .slow-pulse {
   animation: slow-pulse 4s ease-in-out infinite;
 }
+@keyframes smoke {
+  0% {
+    transform: scale(0.8) translateY(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.3) translateY(-10px);
+    opacity: 0.15;
+  }
+  100% {
+    transform: scale(1.8) translateY(-20px);
+    opacity: 0;
+  }
+}
+
+.smoke-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 160%;
+  height: 160%;
+  background: radial-gradient(
+    circle,
+    rgba(50, 50, 50, 0.25) 0%,   /* mørk grå røg i midten */
+    rgba(20, 20, 20, 0.1) 40%,   /* falmer udad */
+    transparent 80%
+  );
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  animation: smoke 7s infinite ease-in-out;
+  pointer-events: none;
+}
+
+.smoke-circle.delay-1 {
+  animation-delay: 2s;
+}
+.smoke-circle.delay-2 {
+  animation-delay: 4s;
+}
