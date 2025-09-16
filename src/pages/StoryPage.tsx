@@ -10,7 +10,7 @@ export default function StoryPage() {
           <CardTitle className="flex items-center gap-2 text-emerald-400">
             <ScrollText className="h-5 w-5" /> Historie
           </CardTitle>
-          <Link to="/" className="text-sm text-emerald-400 hover:underline">← Tilbage</Link>
+          <Link to="/" className="text-sm text-emerald-400 hover:underline">← Back</Link>
         </CardHeader>
         <CardContent className="text-gray-300 space-y-3">
           <p>Few have seen Karandras move—fewer still knew they were watched. Half-elf roots, elven patience; the forest itself holds its breath when he passes.</p>
