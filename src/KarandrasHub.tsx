@@ -9,7 +9,7 @@ const characterData = {
   ancestry: "Half-elf",
   class: "Ranger",
   stats: [
-    { key: "STR", label: "Strength", value: 14 },
+    { key: "STR", label: "Strength", value: 20 },
     { key: "DEX", label: "Dexterity", value: 18 },
     { key: "CON", label: "Constitution", value: 14 },
     { key: "INT", label: "Intelligence", value: 12 },
