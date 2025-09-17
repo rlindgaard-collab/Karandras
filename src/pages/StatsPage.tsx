@@ -17,7 +17,7 @@ export default function StatsPage() {
         </CardHeader>
         <CardContent className="text-gray-300 space-y-6">
           <p>
-            Her kan du uddybe stats med detaljer, baggrund og level progression.
+            Ranger lvl 13.
           </p>
 
           {/* Stats grid */}
