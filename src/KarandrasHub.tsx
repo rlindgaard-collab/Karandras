@@ -19,14 +19,27 @@ type NodeId = typeof baseNodes[number]["id"];
 function InfoCard({ id }: { id: NodeId }) {
   if (id === "stats")
     return (
-      <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur w-[320px]">
+      <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur w-[340px]">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-emerald-400">
             <Shield className="h-4 w-4" /> Stats
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-2 mb-4">
+          {/* AC + HP øverst */}
+          <div className="flex justify-between mb-3 text-sm">
+            <div>
+              <span className="font-semibold text-emerald-400">AC:</span>{" "}
+              {characterData.ac}
+            </div>
+            <div>
+              <span className="font-semibold text-emerald-400">HP:</span>{" "}
+              {characterData.hp}
+            </div>
+          </div>
+
+          {/* Stats grid */}
+          <div className="grid grid-cols-3 gap-2 mb-3">
             {characterData.stats.map((s) => (
               <div
                 key={s.key}
@@ -42,21 +55,12 @@ function InfoCard({ id }: { id: NodeId }) {
               </div>
             ))}
           </div>
-          {/* Extra info: AC, HP, Saves */}
-          <div className="space-y-2 text-sm">
-            <p>
-              <span className="text-emerald-400 font-medium">AC:</span>{" "}
-              {characterData.ac}
-            </p>
-            <p>
-              <span className="text-emerald-400 font-medium">HP:</span>{" "}
-              {characterData.hp}
-            </p>
-            <p>
-              <span className="text-emerald-400 font-medium">Saves:</span>{" "}
-              Fort {characterData.saves.fort} | Ref {characterData.saves.ref} | Will{" "}
-              {characterData.saves.will}
-            </p>
+
+          {/* Saves nederst */}
+          <div className="text-sm">
+            <span className="font-semibold text-emerald-400">Saves:</span>{" "}
+            Fort {characterData.saves.fort} | Ref {characterData.saves.ref} | Will{" "}
+            {characterData.saves.will}
           </div>
         </CardContent>
       </Card>
