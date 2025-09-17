@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "./components/Card";
 import { Shield, Sword, Backpack, ScrollText } from "lucide-react";
@@ -139,9 +139,7 @@ export default function KarandrasHub() {
         >
           {/* Portræt i midten med åndende aura */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <div className="absolute inset-0 rounded-full 
-                            shadow-[0_0_40px_rgba(16,185,129,0.7)] 
-                            animate-[aura_6s_ease-in-out_infinite]"></div>
+            <div className="aura"></div>
             <img
               src={portraitUrl}
               alt="Karandras portrait"
@@ -207,5 +205,3 @@ export default function KarandrasHub() {
     </div>
   );
 }
-
-
