@@ -124,26 +124,6 @@ export default function KarandrasHub() {
   const navigate = useNavigate();
 
   const nodes = baseNodes;
-  const center = { xPct: 50, yPct: 50 };
-
-  const nodePositions = useMemo(() => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    const w = rect?.width ?? 0;
-    const h = rect?.height ?? 0;
-    return nodes.reduce<Record<NodeId, { x: number; y: number }>>((acc, n) => {
-      const xPct = parseFloat(n.anchor.left) / 100;
-      const yPct = parseFloat(n.anchor.top) / 100;
-      acc[n.id] = { x: w * xPct, y: h * yPct };
-      return acc;
-    }, {} as Record<NodeId, { x: number; y: number }>);
-  }, [nodes, containerRef.current?.offsetWidth, containerRef.current?.offsetHeight]);
-
-  const centerPx = useMemo(() => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    const w = rect?.width ?? 0;
-    const h = rect?.height ?? 0;
-    return { x: (center.xPct / 100) * w, y: (center.yPct / 100) * h };
-  }, [containerRef.current?.offsetWidth, containerRef.current?.offsetHeight]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-950 via-gray-900 to-black text-gray-200">
@@ -153,20 +133,23 @@ export default function KarandrasHub() {
         </h1>
         <div
           ref={containerRef}
-          className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-gray-800 
+          className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl 
+                     border border-gray-800 
                      bg-[radial-gradient(ellipse_at_center,rgba(16,24,16,0.35),rgba(2,4,2,0.7))] 
                      shadow-[0_0_40px_rgba(16,185,129,0.08)]"
         >
-          {/* Portræt i midten */}
+          {/* Portræt i midten med glow */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <img
               src={portraitUrl}
               alt="Karandras portrait"
-              className="h-56 w-56 rounded-full border-4 border-emerald-700 shadow-lg 
+              className="h-56 w-56 rounded-full border-4 border-emerald-700 
+                         shadow-[0_0_35px_rgba(16,185,129,0.6)] 
                          object-cover object-top slow-pulse relative z-10"
             />
           </div>
 
+          {/* Ikoner rundt om */}
           {nodes.map((n) => {
             const Icon = n.icon;
             const isActive = active === n.id;
@@ -175,6 +158,7 @@ export default function KarandrasHub() {
               left: n.anchor.left,
               transform: "translate(-50%, -50%)",
             };
+
             return (
               <div key={n.id} className="absolute" style={posStyle}>
                 <button
@@ -183,14 +167,17 @@ export default function KarandrasHub() {
                   onMouseLeave={() =>
                     setActive((prev) => (prev === n.id ? null : prev))
                   }
-                  className="group relative grid place-items-center rounded-full border border-emerald-800/40 
-                             bg-gray-900/70 p-3 hover:bg-emerald-900/40 
-                             transition-shadow duration-500 hover:shadow-[0_0_20px_rgba(16,185,129,0.6)]"
+                  className="group relative grid place-items-center rounded-full 
+                             border border-emerald-800/40 bg-gray-900/70 p-3 
+                             hover:bg-emerald-900/40 transition-shadow duration-500 
+                             hover:shadow-[0_0_25px_rgba(16,185,129,0.9)]"
                 >
                   <Icon className="h-6 w-6 text-emerald-400 
                                    group-hover:text-emerald-300 
                                    transition-colors duration-300" />
                 </button>
+
+                {/* Hover Cards */}
                 <AnimatePresence>
                   {isActive && (
                     <motion.div
@@ -200,14 +187,10 @@ export default function KarandrasHub() {
                       transition={{ type: "spring", stiffness: 260, damping: 28 }}
                       className={[
                         "absolute z-20",
-                        n.id === "stats" &&
-                          "top-full left-1/2 -translate-x-1/2 mt-2",
-                        n.id === "gear" &&
-                          "bottom-full left-1/2 -translate-x-1/2 mb-2",
-                        n.id === "weapons" &&
-                          "right-full top-1/2 -translate-y-1/2 mr-2",
-                        n.id === "story" &&
-                          "left-full top-1/2 -translate-y-1/2 ml-2",
+                        n.id === "stats" && "top-full left-1/2 -translate-x-1/2 mt-2",
+                        n.id === "gear" && "bottom-full left-1/2 -translate-x-1/2 mb-2",
+                        n.id === "weapons" && "right-full top-1/2 -translate-y-1/2 mr-2",
+                        n.id === "story" && "left-full top-1/2 -translate-y-1/2 ml-2",
                       ]
                         .filter(Boolean)
                         .join(" ")}
@@ -224,3 +207,4 @@ export default function KarandrasHub() {
     </div>
   );
 }
+
