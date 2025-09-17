@@ -3,22 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "./components/Card";
 import { Shield, Sword, Backpack, ScrollText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { characterData } from "./data/characterData";
 
 const portraitUrl = "/karandras.png"; // billedet i public/
-
-const characterData = {
-  name: "Karandras",
-  ancestry: "Half-elf",
-  class: "Ranger",
-  stats: [
-    { key: "STR", label: "Strength", value: 20 },
-    { key: "DEX", label: "Dexterity", value: 18 },
-    { key: "CON", label: "Constitution", value: 18 },
-    { key: "INT", label: "Intelligence", value: 10 },
-    { key: "WIS", label: "Wisdom", value: 16 },
-    { key: "CHA", label: "Charisma", value: 10 },
-  ],
-};
 
 const baseNodes = [
   { id: "stats", label: "Stats", icon: Shield, anchor: { top: "8%", left: "50%" } },
@@ -32,14 +19,14 @@ type NodeId = typeof baseNodes[number]["id"];
 function InfoCard({ id }: { id: NodeId }) {
   if (id === "stats")
     return (
-      <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur">
+      <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur w-[320px]">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-emerald-400">
             <Shield className="h-4 w-4" /> Stats
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-2 mb-4">
             {characterData.stats.map((s) => (
               <div
                 key={s.key}
@@ -55,29 +42,49 @@ function InfoCard({ id }: { id: NodeId }) {
               </div>
             ))}
           </div>
+          {/* Extra info: AC, HP, Saves */}
+          <div className="space-y-2 text-sm">
+            <p>
+              <span className="text-emerald-400 font-medium">AC:</span>{" "}
+              {characterData.ac}
+            </p>
+            <p>
+              <span className="text-emerald-400 font-medium">HP:</span>{" "}
+              {characterData.hp}
+            </p>
+            <p>
+              <span className="text-emerald-400 font-medium">Saves:</span>{" "}
+              Fort {characterData.saves.fort} | Ref {characterData.saves.ref} | Will{" "}
+              {characterData.saves.will}
+            </p>
+          </div>
         </CardContent>
       </Card>
     );
 
   if (id === "weapons")
     return (
-      <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur">
+      <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur w-[280px]">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-emerald-400">
             <Sword className="h-4 w-4" /> Weapons
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-300">
-            Twin Blades: A pair of lean, serrated blades...
-          </p>
+          {characterData.weapons.map((w, i) => (
+            <div key={i} className="mb-2">
+              <p className="text-emerald-300 font-medium">{w.name}</p>
+              <p className="text-xs text-gray-400">{w.type}</p>
+              <p className="text-sm text-gray-300">{w.notes}</p>
+            </div>
+          ))}
         </CardContent>
       </Card>
     );
 
   if (id === "gear")
     return (
-      <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur">
+      <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur w-[260px]">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-emerald-400">
             <Backpack className="h-4 w-4" /> Gear
@@ -85,25 +92,23 @@ function InfoCard({ id }: { id: NodeId }) {
         </CardHeader>
         <CardContent>
           <ul className="list-disc list-inside text-sm text-gray-300">
-            <li>Shadow-weave Cloak</li>
-            <li>Hunter’s Kit</li>
-            <li>Vial of Night-moss</li>
+            {characterData.gear.map((g, i) => (
+              <li key={i}>{g}</li>
+            ))}
           </ul>
         </CardContent>
       </Card>
     );
 
   return (
-    <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur">
+    <Card className="border-emerald-900/40 bg-gray-900/90 text-gray-200 backdrop-blur w-[300px]">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-emerald-400">
           <ScrollText className="h-4 w-4" /> Background
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-gray-300">
-          Few have seen Karandras move—fewer still knew they were watched...
-        </p>
+        <p className="text-sm text-gray-300">{characterData.story}</p>
       </CardContent>
     </Card>
   );
@@ -146,12 +151,12 @@ export default function KarandrasHub() {
           ref={containerRef}
           className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-gray-800 bg-[radial-gradient(ellipse_at_center,rgba(16,24,16,0.35),rgba(2,4,2,0.7))] shadow-[0_0_40px_rgba(16,185,129,0.08)]"
         >
-          {/* Portræt i midten med hover-effekt */}
+          {/* Portræt i midten */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <img
               src={portraitUrl}
               alt="Karandras portrait"
-              className="h-56 w-56 rounded-full border-4 border-emerald-700 shadow-lg object-cover object-top slow-pulse transition duration-300 hover:shadow-[0_0_30px_rgba(16,185,129,0.9)] hover:scale-105"
+              className="h-56 w-56 rounded-full border-4 border-emerald-700 shadow-lg object-cover object-top slow-pulse relative z-10"
             />
           </div>
 
@@ -171,9 +176,9 @@ export default function KarandrasHub() {
                   onMouseLeave={() =>
                     setActive((prev) => (prev === n.id ? null : prev))
                   }
-                  className="group relative grid place-items-center rounded-full border border-emerald-800/40 bg-gray-900/70 p-3 transition duration-300 hover:border-emerald-400 hover:shadow-[0_0_15px_rgba(16,185,129,0.8)]"
+                  className="group relative grid place-items-center rounded-full border border-emerald-800/40 bg-gray-900/70 p-3 hover:bg-emerald-900/40"
                 >
-                  <Icon className="h-6 w-6 text-emerald-400 transition duration-300 group-hover:text-emerald-300 group-hover:scale-110" />
+                  <Icon className="h-6 w-6 text-emerald-400 group-hover:text-emerald-300" />
                 </button>
                 <AnimatePresence>
                   {isActive && (
@@ -183,7 +188,7 @@ export default function KarandrasHub() {
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ type: "spring", stiffness: 260, damping: 28 }}
                       className={[
-                        "absolute z-20 w-[260px] max-w-sm",
+                        "absolute z-20",
                         n.id === "stats" &&
                           "top-full left-1/2 -translate-x-1/2 mt-2",
                         n.id === "gear" &&
