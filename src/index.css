@@ -6,7 +6,7 @@ body {
   @apply bg-gray-900 text-gray-100;
 }
 
-/* Pulse langsomt på portrættet */
+/* Pulse langsomt på portrættet (zoom ind/ud) */
 @keyframes slow-pulse {
   0%, 100% {
     opacity: 1;
@@ -22,7 +22,7 @@ body {
   animation: slow-pulse 8s ease-in-out infinite;
 }
 
-/* Aura (åndende glød) */
+/* Aura (åndende glød) animation */
 @keyframes aura {
   0%, 100% {
     transform: scale(1);
@@ -37,15 +37,16 @@ body {
 /* Klasse til aura-effekt */
 .aura {
   position: absolute;
-  inset: 0;
-  border-radius: 9999px; /* helt rund */
+  inset: -20px; /* gør auraen større end billedet */
+  border-radius: 9999px;
   background: radial-gradient(
     circle,
-    rgba(16, 185, 129, 0.4) 40%,   /* grøn glød ind mod midten */
-    rgba(16, 185, 129, 0.15) 70%,  /* falmer ud */
-    transparent 100%               /* helt gennemsigtig yderst */
+    rgba(16, 185, 129, 0.25) 0%,   /* grøn i midten */
+    rgba(16, 185, 129, 0.15) 40%,  /* blød overgang */
+    rgba(16, 185, 129, 0.05) 70%,  /* meget svag længere ude */
+    transparent 100%               /* helt gennemsigtig */
   );
   animation: aura 6s ease-in-out infinite;
-  pointer-events: none; /* så man kan klikke ikonerne */
+  pointer-events: none; /* klik går igennem */
 }
 
