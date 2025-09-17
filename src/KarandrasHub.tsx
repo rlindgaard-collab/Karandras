@@ -122,7 +122,6 @@ export default function KarandrasHub() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [active, setActive] = useState<NodeId | null>(null);
   const navigate = useNavigate();
-
   const nodes = baseNodes;
 
   return (
@@ -138,14 +137,17 @@ export default function KarandrasHub() {
                      bg-[radial-gradient(ellipse_at_center,rgba(16,24,16,0.35),rgba(2,4,2,0.7))] 
                      shadow-[0_0_40px_rgba(16,185,129,0.08)]"
         >
-          {/* Portræt i midten med glow */}
+          {/* Portræt i midten med åndende aura */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="absolute inset-0 rounded-full 
+                            shadow-[0_0_40px_rgba(16,185,129,0.7)] 
+                            animate-[aura_6s_ease-in-out_infinite]"></div>
             <img
               src={portraitUrl}
               alt="Karandras portrait"
-              className="h-56 w-56 rounded-full border-4 border-emerald-700 
-                         shadow-[0_0_35px_rgba(16,185,129,0.6)] 
-                         object-cover object-top slow-pulse relative z-10"
+              className="relative h-56 w-56 rounded-full border-4 border-emerald-700 
+                         shadow-[0_0_35px_rgba(16,185,129,0.5)] 
+                         object-cover object-top slow-pulse z-10"
             />
           </div>
 
@@ -172,9 +174,7 @@ export default function KarandrasHub() {
                              hover:bg-emerald-900/40 transition-shadow duration-500 
                              hover:shadow-[0_0_25px_rgba(16,185,129,0.9)]"
                 >
-                  <Icon className="h-6 w-6 text-emerald-400 
-                                   group-hover:text-emerald-300 
-                                   transition-colors duration-300" />
+                  <Icon className="h-6 w-6 text-emerald-400 group-hover:text-emerald-300 transition-colors duration-300" />
                 </button>
 
                 {/* Hover Cards */}
@@ -207,4 +207,5 @@ export default function KarandrasHub() {
     </div>
   );
 }
+
 
