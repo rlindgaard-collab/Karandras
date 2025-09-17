@@ -121,7 +121,6 @@ function InfoCard({ id }: { id: NodeId }) {
 export default function KarandrasHub() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [active, setActive] = useState<NodeId | null>(null);
-  const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
 
   const nodes = baseNodes;
@@ -156,24 +155,29 @@ export default function KarandrasHub() {
           ref={containerRef}
           className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-gray-800 bg-[radial-gradient(ellipse_at_center,rgba(16,24,16,0.35),rgba(2,4,2,0.7))] shadow-[0_0_40px_rgba(16,185,129,0.08)]"
         >
-          {/* Portræt i midten med hover-effekt */}
+          {/* Portræt i midten med idle åndedræt + hover glow */}
           <motion.div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-            onHoverStart={() => setHovered(true)}
-            onHoverEnd={() => setHovered(false)}
-            animate={{
-              scale: hovered ? 1.08 : 1,
-              boxShadow: hovered
-                ? "0 0 60px rgba(16, 185, 129, 0.6)"
-                : "0 0 30px rgba(16, 185, 129, 0.3)",
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full z-10"
+            animate={{ scale: [1, 1.02, 1] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            whileHover={{ scale: 1.08 }}
+            style={{
+              boxShadow: "0 0 30px rgba(16,185,129,0.30)",
             }}
-            transition={{ duration: 0.3 }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = "0 0 60px rgba(16,185,129,0.55)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = "0 0 30px rgba(16,185,129,0.30)";
+            }}
           >
-            <img
-              src={portraitUrl}
-              alt="Karandras portrait"
-              className="h-56 w-56 rounded-full border-4 border-emerald-700 object-cover object-top relative z-10"
-            />
+            <div className="h-56 w-56 rounded-full overflow-hidden ring-4 ring-emerald-700">
+              <img
+                src={portraitUrl}
+                alt="Karandras portrait"
+                className="h-full w-full object-cover object-top"
+              />
+            </div>
           </motion.div>
 
           {nodes.map((n) => {
