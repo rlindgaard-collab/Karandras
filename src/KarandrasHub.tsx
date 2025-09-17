@@ -155,9 +155,9 @@ export default function KarandrasHub() {
           ref={containerRef}
           className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-gray-800 bg-[radial-gradient(ellipse_at_center,rgba(16,24,16,0.35),rgba(2,4,2,0.7))] shadow-[0_0_40px_rgba(16,185,129,0.08)]"
         >
-          {/* Portræt i midten med idle åndedræt + hover glow */}
+          {/* Portræt i midten */}
           <motion.div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full z-10"
+            className="absolute inset-0 flex items-center justify-center z-10"
             animate={{ scale: [1, 1.02, 1] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
             whileHover={{ scale: 1.08 }}
@@ -233,3 +233,4 @@ export default function KarandrasHub() {
     </div>
   );
 }
+
