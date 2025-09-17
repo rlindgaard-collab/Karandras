@@ -27,21 +27,24 @@ body {
   0%, 100% {
     transform: scale(1);
     opacity: 0.6;
-    box-shadow: 0 0 40px rgba(16,185,129,0.7);
+    box-shadow: 0 0 50px rgba(16,185,129,0.7),
+                0 0 100px rgba(16,185,129,0.5);
   }
   50% {
-    transform: scale(1.15);
+    transform: scale(1.2);
     opacity: 0.9;
-    box-shadow: 0 0 70px rgba(16,185,129,0.9);
+    box-shadow: 0 0 80px rgba(16,185,129,0.9),
+                0 0 140px rgba(16,185,129,0.6);
   }
 }
 
-/* Klasse til aura-effekt */
 .aura {
   position: absolute;
-  inset: 0;
-  border-radius: 9999px; /* gør den helt rund */
-  animation: aura 6s ease-in-out infinite;
-  pointer-events: none; /* så man kan klikke ikonerne uden problemer */
+  inset: -25px;          /* gør auraen større end portrættet */
+  border-radius: 9999px; /* helt rund */
+  background: transparent;
+  animation: aura 7s ease-in-out infinite;
+  pointer-events: none;  /* så auraen ikke forstyrrer klik */
+  z-index: 0;
 }
 
