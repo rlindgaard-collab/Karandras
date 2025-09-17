@@ -121,6 +121,7 @@ function InfoCard({ id }: { id: NodeId }) {
 export default function KarandrasHub() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [active, setActive] = useState<NodeId | null>(null);
+  const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
 
   const nodes = baseNodes;
@@ -155,14 +156,25 @@ export default function KarandrasHub() {
           ref={containerRef}
           className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-gray-800 bg-[radial-gradient(ellipse_at_center,rgba(16,24,16,0.35),rgba(2,4,2,0.7))] shadow-[0_0_40px_rgba(16,185,129,0.08)]"
         >
-          {/* Portræt i midten */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          {/* Portræt i midten med hover-effekt */}
+          <motion.div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            onHoverStart={() => setHovered(true)}
+            onHoverEnd={() => setHovered(false)}
+            animate={{
+              scale: hovered ? 1.08 : 1,
+              boxShadow: hovered
+                ? "0 0 60px rgba(16, 185, 129, 0.6)"
+                : "0 0 30px rgba(16, 185, 129, 0.3)",
+            }}
+            transition={{ duration: 0.3 }}
+          >
             <img
               src={portraitUrl}
               alt="Karandras portrait"
-              className="h-56 w-56 rounded-full border-4 border-emerald-700 shadow-lg object-cover object-top slow-pulse relative z-10"
+              className="h-56 w-56 rounded-full border-4 border-emerald-700 object-cover object-top relative z-10"
             />
-          </div>
+          </motion.div>
 
           {nodes.map((n) => {
             const Icon = n.icon;
