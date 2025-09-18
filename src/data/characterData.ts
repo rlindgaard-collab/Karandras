@@ -25,9 +25,9 @@ export const characterData = {
     },
   ],
   gear: [
-    "Shadow-weave Cloak",
-    "Hunter’s Kit",
-    "Vial of Night-moss",
+    "Shadow-weave Armor",
+    "Mask of the Mantis",
+    "Boots of Bounding",
   ],
   story: "Few have seen Karandras move—fewer still knew they were watched...",
 };
