@@ -13,8 +13,8 @@ export default function WeaponsPage() {
           <Link to="/" className="text-sm text-emerald-400 hover:underline">← Back</Link>
         </CardHeader>
         <CardContent className="text-gray-300 space-y-3">
-          <p><strong>Twin Blades</strong>: A pair of lean, serrated blades. Balanced for ambushes and rapid follow-through.</p>
-          +2 Weapon Striking (Greater) Cold iron Sawtooth Saber</p>
+          <p><strong>Twin Blades</strong>: A pair of lean, serrated blades. Balanced for ambushes and rapid follow-through.
+          +2 Weapon Striking (Greater) Cold iron Sawtooth Saber
           Nightmare and Astral runes</p>
         </CardContent>
       </Card>
