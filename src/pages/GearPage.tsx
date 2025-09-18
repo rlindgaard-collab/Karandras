@@ -14,7 +14,7 @@ export default function GearPage() {
         </CardHeader>
         <CardContent className="text-gray-300 space-y-3">
           <ul className="list-disc list-inside space-y-1">
-            <li>Shadow-weave Armor +2 stealth</li>
+            <li>Shadow-weave Armor</li>
             <li>Mask of the Mantis</li>
             <li>Boots of Bounding</li>
             <li>Cassisian Helmet</li>
