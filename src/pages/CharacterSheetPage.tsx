@@ -17,35 +17,45 @@ export default function CharacterSheetPage() {
   const [activeTab, setActiveTab] = useState<TabId>("battle");
 
   // HP state
-  const [currentHP, setCurrentHP] = useState(characterData.hp);
-  const [inputValue, setInputValue] = useState<number>(0);
+  const [currentHp, setCurrentHp] = useState(characterData.hp);
+  const [changeValue, setChangeValue] = useState<number>(0);
   const [mode, setMode] = useState<"damage" | "heal">("damage");
 
   // Saves state
-  const [lastRoll, setLastRoll] = useState<string>("");
-
-  const handleHPChange = () => {
-    if (mode === "damage") {
-      setCurrentHP((prev) => Math.max(0, prev - inputValue));
-    } else {
-      setCurrentHP((prev) => Math.min(characterData.hp, prev + inputValue));
-    }
-    setInputValue(0);
-  };
-
-  const rollSave = (type: "fort" | "ref" | "will") => {
-    const d20 = Math.floor(Math.random() * 20) + 1;
-    const modifier = characterData.saves[type];
-    const total = d20 + modifier;
-    setLastRoll(
-      `${type.toUpperCase()} Save: ${d20} (d20) + ${modifier} (modifier) = ${total}`
-    );
-    return total;
-  };
-
   const [fortResult, setFortResult] = useState<number | null>(null);
   const [refResult, setRefResult] = useState<number | null>(null);
   const [willResult, setWillResult] = useState<number | null>(null);
+  const [lastRoll, setLastRoll] = useState<string>("");
+
+  const applyChange = () => {
+    if (mode === "damage") {
+      setCurrentHp((hp) => Math.max(0, hp - changeValue));
+    } else {
+      setCurrentHp((hp) => Math.min(characterData.hp, hp + changeValue));
+    }
+    setChangeValue(0);
+  };
+
+  const rollSave = (
+    type: "fort" | "ref" | "will",
+    current: number | null,
+    setResult: React.Dispatch<React.SetStateAction<number | null>>
+  ) => {
+    if (current !== null) {
+      // Reset
+      setResult(null);
+      setLastRoll("");
+      return;
+    }
+
+    const d20 = Math.floor(Math.random() * 20) + 1;
+    const modifier = characterData.saves[type];
+    const total = d20 + modifier;
+    setResult(total);
+    setLastRoll(
+      `${type.toUpperCase()} Save: ${d20} (d20) + ${modifier} (modifier) = ${total}`
+    );
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-black text-gray-200 p-4 sm:p-6">
@@ -88,48 +98,50 @@ export default function CharacterSheetPage() {
 
         {/* Content */}
         <CardContent className="min-h-[300px] sm:min-h-[400px] text-gray-300 text-sm sm:text-base leading-relaxed space-y-6">
+          {/* BATTLE TAB */}
           {activeTab === "battle" && (
             <div>
               <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-4">
                 Battle
               </h2>
 
-              {/* HP tracker */}
+              {/* HP Slider + controls */}
               <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">
-                  Hit Points (HP)
+                <label className="block text-sm text-gray-400 mb-2">
+                  Hit Points
                 </label>
                 <input
                   type="range"
-                  min="0"
+                  min={0}
                   max={characterData.hp}
-                  value={currentHP}
-                  onChange={(e) => setCurrentHP(Number(e.target.value))}
-                  className="w-full accent-emerald-400"
+                  value={currentHp}
+                  onChange={(e) => setCurrentHp(parseInt(e.target.value))}
+                  className="w-full accent-emerald-500"
                 />
-                <div className="flex justify-between items-center mt-2">
-                  <span className="text-emerald-300 font-semibold">
-                    {currentHP} / {characterData.hp}
+                <div className="flex justify-between items-center mt-2 text-sm">
+                  <span>
+                    {currentHp} / {characterData.hp}
                   </span>
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
-                      value={inputValue}
-                      onChange={(e) => setInputValue(Number(e.target.value))}
-                      className="w-20 px-2 py-1 rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm"
-                      placeholder="0"
+                      value={changeValue}
+                      onChange={(e) => setChangeValue(Number(e.target.value))}
+                      className="w-20 rounded bg-gray-800 border border-gray-700 p-1 text-center text-gray-200"
                     />
                     <select
                       value={mode}
-                      onChange={(e) => setMode(e.target.value as "damage" | "heal")}
-                      className="px-2 py-1 rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm"
+                      onChange={(e) =>
+                        setMode(e.target.value as "damage" | "heal")
+                      }
+                      className="rounded bg-gray-800 border border-gray-700 p-1 text-gray-200"
                     >
                       <option value="damage">Damage</option>
                       <option value="heal">Heal</option>
                     </select>
                     <button
-                      onClick={handleHPChange}
-                      className="px-3 py-1 bg-emerald-700 hover:bg-emerald-600 rounded text-sm font-medium"
+                      onClick={applyChange}
+                      className="px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-600 text-sm font-medium"
                     >
                       Apply
                     </button>
@@ -137,7 +149,7 @@ export default function CharacterSheetPage() {
                 </div>
               </div>
 
-              {/* AC + Saves */}
+              {/* AC and Saves */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="p-3 rounded bg-gray-800/60 border border-gray-700 text-center">
                   <span className="block text-xs text-gray-400">AC</span>
@@ -146,9 +158,14 @@ export default function CharacterSheetPage() {
                   </span>
                 </div>
 
+                {/* Fort Save */}
                 <button
-                  onClick={() => setFortResult(rollSave("fort"))}
-                  className="p-3 rounded bg-gray-800/60 border border-gray-700 text-center hover:bg-emerald-900/40 transition"
+                  onClick={() => rollSave("fort", fortResult, setFortResult)}
+                  className={`p-3 rounded border text-center transition-all ${
+                    fortResult !== null
+                      ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                      : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
+                  }`}
                 >
                   <span className="block text-xs text-gray-400">Fort</span>
                   <span className="text-lg font-semibold text-emerald-300">
@@ -156,9 +173,14 @@ export default function CharacterSheetPage() {
                   </span>
                 </button>
 
+                {/* Ref Save */}
                 <button
-                  onClick={() => setRefResult(rollSave("ref"))}
-                  className="p-3 rounded bg-gray-800/60 border border-gray-700 text-center hover:bg-emerald-900/40 transition"
+                  onClick={() => rollSave("ref", refResult, setRefResult)}
+                  className={`p-3 rounded border text-center transition-all ${
+                    refResult !== null
+                      ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                      : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
+                  }`}
                 >
                   <span className="block text-xs text-gray-400">Ref</span>
                   <span className="text-lg font-semibold text-emerald-300">
@@ -166,9 +188,14 @@ export default function CharacterSheetPage() {
                   </span>
                 </button>
 
+                {/* Will Save */}
                 <button
-                  onClick={() => setWillResult(rollSave("will"))}
-                  className="p-3 rounded bg-gray-800/60 border border-gray-700 text-center hover:bg-emerald-900/40 transition"
+                  onClick={() => rollSave("will", willResult, setWillResult)}
+                  className={`p-3 rounded border text-center transition-all ${
+                    willResult !== null
+                      ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                      : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
+                  }`}
                 >
                   <span className="block text-xs text-gray-400">Will</span>
                   <span className="text-lg font-semibold text-emerald-300">
@@ -177,15 +204,14 @@ export default function CharacterSheetPage() {
                 </button>
               </div>
 
-              {/* Last roll details */}
+              {/* Roll details */}
               {lastRoll && (
-                <div className="mt-4 text-sm text-gray-400">
-                  <p>{lastRoll}</p>
-                </div>
+                <div className="mt-4 text-sm text-gray-400">{lastRoll}</div>
               )}
             </div>
           )}
 
+          {/* SKILLS TAB */}
           {activeTab === "skills" && (
             <div>
               <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-3">
@@ -195,15 +221,21 @@ export default function CharacterSheetPage() {
             </div>
           )}
 
+          {/* GEAR TAB */}
           {activeTab === "gear" && (
             <div>
               <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-3">
                 Gear
               </h2>
-              <p>Her kan vi vise alt udstyr fra characterData.gear.</p>
+              <ul className="list-disc list-inside space-y-1">
+                {characterData.gear.map((g, i) => (
+                  <li key={i}>{g}</li>
+                ))}
+              </ul>
             </div>
           )}
 
+          {/* NOTES TAB */}
           {activeTab === "notes" && (
             <div>
               <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-3">
