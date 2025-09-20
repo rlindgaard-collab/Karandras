@@ -28,11 +28,12 @@ export default function StoryPage() {
                 <button
                   key={idx}
                   onClick={() => setActiveIndex(idx)}
-                  className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-                    idx === activeIndex
-                      ? "bg-emerald-800/40 text-emerald-300 border-b-2 border-emerald-400"
-                      : "text-gray-400 hover:text-emerald-300"
-                  }`}
+                  className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-300
+                    ${
+                      idx === activeIndex
+                        ? "bg-emerald-900/60 text-emerald-300 border-b-2 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.6)]"
+                        : "text-gray-400 hover:text-emerald-300 hover:shadow-[0_0_10px_rgba(16,185,129,0.4)] hover:bg-emerald-800/20"
+                    }`}
                 >
                   {ch.title}
                 </button>
