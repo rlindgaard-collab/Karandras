@@ -20,10 +20,10 @@ export default function StoryPage() {
           </Link>
         </CardHeader>
 
-        <CardContent className="text-gray-300 space-y-4 leading-relaxed text-sm">
+        <CardContent>
           {/* Tabs til kapitler */}
           {chapters.length > 0 && (
-            <div className="flex gap-2 border-b border-gray-700 mb-4">
+            <div className="flex gap-2 border-b border-gray-700 mb-6">
               {chapters.map((ch, idx) => (
                 <button
                   key={idx}
@@ -42,22 +42,24 @@ export default function StoryPage() {
 
           {/* Indhold af aktivt kapitel */}
           {chapters.length > 0 ? (
-            <div className="space-y-4">
+            <div className="prose prose-invert max-w-none prose-p:mb-6 prose-p:leading-relaxed">
               {chapters[activeIndex].content.map((p, i) => (
                 <p
                   key={i}
-                  className={
+                  className={`${
                     i === 0
-                      ? "text-base italic text-gray-200"
-                      : "text-sm text-gray-300"
-                  }
+                      ? "first-letter:text-4xl first-letter:font-bold first-letter:text-emerald-400 first-letter:mr-2 first-letter:float-left"
+                      : ""
+                  }`}
                 >
                   {p}
                 </p>
               ))}
             </div>
           ) : (
-            <p>{characterData.story}</p>
+            <p className="prose prose-invert max-w-none leading-relaxed">
+              {characterData.story}
+            </p>
           )}
         </CardContent>
       </Card>
