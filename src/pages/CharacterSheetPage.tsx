@@ -12,15 +12,40 @@ const tabs = [
 ] as const;
 
 type TabId = typeof tabs[number]["id"];
-type Mode = "damage" | "healing";
 
 export default function CharacterSheetPage() {
   const [activeTab, setActiveTab] = useState<TabId>("battle");
 
   // HP state
   const [currentHP, setCurrentHP] = useState(characterData.hp);
-  const [changeAmount, setChangeAmount] = useState<number>(0);
-  const [mode, setMode] = useState<Mode>("damage");
+  const [inputValue, setInputValue] = useState<number>(0);
+  const [mode, setMode] = useState<"damage" | "heal">("damage");
+
+  // Saves state
+  const [lastRoll, setLastRoll] = useState<string>("");
+
+  const handleHPChange = () => {
+    if (mode === "damage") {
+      setCurrentHP((prev) => Math.max(0, prev - inputValue));
+    } else {
+      setCurrentHP((prev) => Math.min(characterData.hp, prev + inputValue));
+    }
+    setInputValue(0);
+  };
+
+  const rollSave = (type: "fort" | "ref" | "will") => {
+    const d20 = Math.floor(Math.random() * 20) + 1;
+    const modifier = characterData.saves[type];
+    const total = d20 + modifier;
+    setLastRoll(
+      `${type.toUpperCase()} Save: ${d20} (d20) + ${modifier} (modifier) = ${total}`
+    );
+    return total;
+  };
+
+  const [fortResult, setFortResult] = useState<number | null>(null);
+  const [refResult, setRefResult] = useState<number | null>(null);
+  const [willResult, setWillResult] = useState<number | null>(null);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-black text-gray-200 p-4 sm:p-6">
@@ -62,115 +87,102 @@ export default function CharacterSheetPage() {
         </CardHeader>
 
         {/* Content */}
-        <CardContent className="min-h-[300px] sm:min-h-[400px] text-gray-300 text-sm sm:text-base leading-relaxed space-y-4">
+        <CardContent className="min-h-[300px] sm:min-h-[400px] text-gray-300 text-sm sm:text-base leading-relaxed space-y-6">
           {activeTab === "battle" && (
             <div>
               <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-4">
                 Battle
               </h2>
 
-              {/* HP Controls */}
+              {/* HP tracker */}
               <div className="mb-6">
-                <label className="block mb-2 text-sm font-medium text-gray-400">
+                <label className="block text-sm font-medium mb-2">
                   Hit Points (HP)
                 </label>
-
-                {/* Slider */}
                 <input
                   type="range"
-                  min={0}
+                  min="0"
                   max={characterData.hp}
                   value={currentHP}
                   onChange={(e) => setCurrentHP(Number(e.target.value))}
-                  className="w-full accent-emerald-500"
+                  className="w-full accent-emerald-400"
                 />
-
-                {/* Display */}
-                <div className="text-center mt-2 text-sm text-emerald-300 font-semibold">
-                  {currentHP} / {characterData.hp}
-                </div>
-
-                {/* Input + Controls */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-3">
-                  {/* Number input */}
-                  <input
-                    type="number"
-                    value={changeAmount}
-                    onChange={(e) => setChangeAmount(Number(e.target.value))}
-                    className="w-28 text-center bg-gray-900 border border-gray-700 rounded text-emerald-300 px-2 py-1"
-                    placeholder="0"
-                  />
-
-                  {/* Toggle */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setMode("damage")}
-                      className={`px-3 py-1 rounded ${
-                        mode === "damage"
-                          ? "bg-red-700 text-white"
-                          : "bg-gray-800 text-gray-400"
-                      }`}
+                <div className="flex justify-between items-center mt-2">
+                  <span className="text-emerald-300 font-semibold">
+                    {currentHP} / {characterData.hp}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(Number(e.target.value))}
+                      className="w-20 px-2 py-1 rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm"
+                      placeholder="0"
+                    />
+                    <select
+                      value={mode}
+                      onChange={(e) => setMode(e.target.value as "damage" | "heal")}
+                      className="px-2 py-1 rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm"
                     >
-                      Damage
-                    </button>
+                      <option value="damage">Damage</option>
+                      <option value="heal">Heal</option>
+                    </select>
                     <button
-                      onClick={() => setMode("healing")}
-                      className={`px-3 py-1 rounded ${
-                        mode === "healing"
-                          ? "bg-emerald-700 text-white"
-                          : "bg-gray-800 text-gray-400"
-                      }`}
+                      onClick={handleHPChange}
+                      className="px-3 py-1 bg-emerald-700 hover:bg-emerald-600 rounded text-sm font-medium"
                     >
-                      Heal
+                      Apply
                     </button>
                   </div>
-
-                  {/* Apply */}
-                  <button
-                    onClick={() => {
-                      if (mode === "damage") {
-                        setCurrentHP((hp) => Math.max(0, hp - changeAmount));
-                      } else {
-                        setCurrentHP((hp) =>
-                          Math.min(characterData.hp, hp + changeAmount)
-                        );
-                      }
-                      setChangeAmount(0);
-                    }}
-                    className="px-4 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded shadow"
-                  >
-                    Apply
-                  </button>
                 </div>
               </div>
 
-              {/* AC and Saves */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                <div className="p-3 border border-gray-800 rounded-lg bg-gray-950/40">
-                  <div className="text-xs uppercase text-gray-400">AC</div>
-                  <div className="text-lg font-semibold text-emerald-300">
+              {/* AC + Saves */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="p-3 rounded bg-gray-800/60 border border-gray-700 text-center">
+                  <span className="block text-xs text-gray-400">AC</span>
+                  <span className="text-lg font-semibold text-emerald-300">
                     {characterData.ac}
-                  </div>
+                  </span>
                 </div>
-                <div className="p-3 border border-gray-800 rounded-lg bg-gray-950/40">
-                  <div className="text-xs uppercase text-gray-400">Fort</div>
-                  <div className="text-lg font-semibold text-emerald-300">
-                    {characterData.saves.fort}
-                  </div>
-                </div>
-                <div className="p-3 border border-gray-800 rounded-lg bg-gray-950/40">
-                  <div className="text-xs uppercase text-gray-400">Ref</div>
-                  <div className="text-lg font-semibold text-emerald-300">
-                    {characterData.saves.ref}
-                  </div>
-                </div>
-                <div className="p-3 border border-gray-800 rounded-lg bg-gray-950/40">
-                  <div className="text-xs uppercase text-gray-400">Will</div>
-                  <div className="text-lg font-semibold text-emerald-300">
-                    {characterData.saves.will}
-                  </div>
-                </div>
+
+                <button
+                  onClick={() => setFortResult(rollSave("fort"))}
+                  className="p-3 rounded bg-gray-800/60 border border-gray-700 text-center hover:bg-emerald-900/40 transition"
+                >
+                  <span className="block text-xs text-gray-400">Fort</span>
+                  <span className="text-lg font-semibold text-emerald-300">
+                    {fortResult ?? characterData.saves.fort}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setRefResult(rollSave("ref"))}
+                  className="p-3 rounded bg-gray-800/60 border border-gray-700 text-center hover:bg-emerald-900/40 transition"
+                >
+                  <span className="block text-xs text-gray-400">Ref</span>
+                  <span className="text-lg font-semibold text-emerald-300">
+                    {refResult ?? characterData.saves.ref}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setWillResult(rollSave("will"))}
+                  className="p-3 rounded bg-gray-800/60 border border-gray-700 text-center hover:bg-emerald-900/40 transition"
+                >
+                  <span className="block text-xs text-gray-400">Will</span>
+                  <span className="text-lg font-semibold text-emerald-300">
+                    {willResult ?? characterData.saves.will}
+                  </span>
+                </button>
               </div>
+
+              {/* Last roll details */}
+              {lastRoll && (
+                <div className="mt-4 text-sm text-gray-400">
+                  <p>{lastRoll}</p>
+                </div>
+              )}
             </div>
           )}
 
