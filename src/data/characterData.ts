@@ -24,26 +24,33 @@ export const characterData = {
       notes: "A pair of lean, serrated blades...",
     },
   ],
-  gear: [
-    "Shadow-weave Armor",
-    "Mask of the Mantis",
-    "Boots of Bounding",
-  ],
+  gear: ["Shadow-weave Armor", "Mask of the Mantis", "Boots of Bounding"],
+
+  // gammel story (fallback)
   story: "Few have seen Karandras move—fewer still knew they were watched...",
 
-  // Nyt felt: flere kapitler til Story
+  // ny struktur med kapitler
   storyChapters: [
     {
-      title: "Prolog",
-      content: "Few have seen Karandras move—fewer still knew they were watched...",
+      title: "Origins",
+      content: [
+        "Few have seen Karandras move—fewer still knew they were watched.",
+        "Born of half-elf lineage, he walks both worlds but belongs to none.",
+      ],
     },
     {
-      title: "Kapitel 1: Skyggernes Jagt",
-      content: "Karandras begyndte sin rejse i de dybe skove, hvor hver skygge kunne være ven eller fjende...",
+      title: "The Hunt",
+      content: [
+        "With serrated twin blades, Karandras stalks his prey.",
+        "The forest itself seems to hold its breath when he strikes.",
+      ],
     },
     {
-      title: "Kapitel 2: Den Tyste Alliance",
-      content: "Efter mange kampe fandt han uventede allierede blandt dem, der levede udenfor civilisationens lys...",
+      title: "Shadows",
+      content: [
+        "Legends whisper of his mask, the Mantis visage.",
+        "To see it is to know the end is near.",
+      ],
     },
   ],
 };
