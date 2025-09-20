@@ -34,7 +34,7 @@ export const characterData = {
     {
       title: "Origins",
       content: [
-        "I was no hero. I was barely a warrior."
+        "I was no hero. I was barely a warrior.",
         "Born of half-elf lineage, he walks both worlds but belongs to none.",
       ],
     },
