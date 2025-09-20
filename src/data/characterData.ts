@@ -11,7 +11,7 @@ export const characterData = {
     { key: "CHA", label: "Charisma", value: 10 },
   ],
   ac: 34,
-  hp: 200,
+  hp: 203,
   saves: {
     fort: 24,
     ref: 24,
