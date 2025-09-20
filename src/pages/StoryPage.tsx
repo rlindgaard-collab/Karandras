@@ -19,7 +19,8 @@ export default function StoryPage() {
             ← Back
           </Link>
         </CardHeader>
-        <CardContent className="text-gray-300 space-y-4">
+
+        <CardContent className="text-gray-300 space-y-4 leading-relaxed text-sm">
           {/* Tabs til kapitler */}
           {chapters.length > 0 && (
             <div className="flex gap-2 border-b border-gray-700 mb-4">
@@ -41,9 +42,18 @@ export default function StoryPage() {
 
           {/* Indhold af aktivt kapitel */}
           {chapters.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {chapters[activeIndex].content.map((p, i) => (
-                <p key={i}>{p}</p>
+                <p
+                  key={i}
+                  className={
+                    i === 0
+                      ? "text-base italic text-gray-200"
+                      : "text-sm text-gray-300"
+                  }
+                >
+                  {p}
+                </p>
               ))}
             </div>
           ) : (
