@@ -4,6 +4,7 @@ import StatsPage from "./pages/StatsPage";
 import WeaponsPage from "./pages/WeaponsPage";
 import GearPage from "./pages/GearPage";
 import StoryPage from "./pages/StoryPage";
+import CharacterSheetPage from "./pages/CharacterSheetPage"; // 👈 Tilføjet import
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
       <Route path="/weapons" element={<WeaponsPage />} />
       <Route path="/gear" element={<GearPage />} />
       <Route path="/story" element={<StoryPage />} />
+      <Route path="/character-sheet" element={<CharacterSheetPage />} /> {/* 👈 Ny route */}
     </Routes>
   );
 }
