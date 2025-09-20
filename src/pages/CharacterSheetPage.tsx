@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/Card";
-import { Swords, ListChecks, Backpack, StickyNote, Shield } from "lucide-react";
+import { Swords, ListChecks, Backpack, StickyNote } from "lucide-react";
 import { Link } from "react-router-dom";
 import { characterData } from "../data/characterData";
 
@@ -12,10 +12,15 @@ const tabs = [
 ] as const;
 
 type TabId = typeof tabs[number]["id"];
+type Mode = "damage" | "healing";
 
 export default function CharacterSheetPage() {
   const [activeTab, setActiveTab] = useState<TabId>("battle");
+
+  // HP state
   const [currentHP, setCurrentHP] = useState(characterData.hp);
+  const [changeAmount, setChangeAmount] = useState<number>(0);
+  const [mode, setMode] = useState<Mode>("damage");
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-black text-gray-200 p-4 sm:p-6">
@@ -34,7 +39,7 @@ export default function CharacterSheetPage() {
             </Link>
           </div>
 
-          {/* Tabs – mobilvenlige */}
+          {/* Tabs */}
           <div className="mt-4 flex gap-2 border-b border-gray-700 overflow-x-auto scrollbar-hide">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -64,11 +69,13 @@ export default function CharacterSheetPage() {
                 Battle
               </h2>
 
-              {/* HP Slider */}
+              {/* HP Controls */}
               <div className="mb-6">
                 <label className="block mb-2 text-sm font-medium text-gray-400">
                   Hit Points (HP)
                 </label>
+
+                {/* Slider */}
                 <input
                   type="range"
                   min={0}
@@ -77,37 +84,91 @@ export default function CharacterSheetPage() {
                   onChange={(e) => setCurrentHP(Number(e.target.value))}
                   className="w-full accent-emerald-500"
                 />
-                <div className="flex justify-between mt-1 text-sm">
-                  <span className="text-red-400">0</span>
-                  <span className="text-emerald-300 font-semibold">
-                    {currentHP} / {characterData.hp}
-                  </span>
+
+                {/* Display */}
+                <div className="text-center mt-2 text-sm text-emerald-300 font-semibold">
+                  {currentHP} / {characterData.hp}
+                </div>
+
+                {/* Input + Controls */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-3">
+                  {/* Number input */}
+                  <input
+                    type="number"
+                    value={changeAmount}
+                    onChange={(e) => setChangeAmount(Number(e.target.value))}
+                    className="w-28 text-center bg-gray-900 border border-gray-700 rounded text-emerald-300 px-2 py-1"
+                    placeholder="0"
+                  />
+
+                  {/* Toggle */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setMode("damage")}
+                      className={`px-3 py-1 rounded ${
+                        mode === "damage"
+                          ? "bg-red-700 text-white"
+                          : "bg-gray-800 text-gray-400"
+                      }`}
+                    >
+                      Damage
+                    </button>
+                    <button
+                      onClick={() => setMode("healing")}
+                      className={`px-3 py-1 rounded ${
+                        mode === "healing"
+                          ? "bg-emerald-700 text-white"
+                          : "bg-gray-800 text-gray-400"
+                      }`}
+                    >
+                      Heal
+                    </button>
+                  </div>
+
+                  {/* Apply */}
+                  <button
+                    onClick={() => {
+                      if (mode === "damage") {
+                        setCurrentHP((hp) => Math.max(0, hp - changeAmount));
+                      } else {
+                        setCurrentHP((hp) =>
+                          Math.min(characterData.hp, hp + changeAmount)
+                        );
+                      }
+                      setChangeAmount(0);
+                    }}
+                    className="px-4 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded shadow"
+                  >
+                    Apply
+                  </button>
                 </div>
               </div>
 
-              {/* AC + Saves */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-3 rounded-lg border border-gray-800 bg-gray-950/40">
-                  <p className="text-gray-400 text-sm">Armor Class (AC)</p>
-                  <p className="text-2xl font-bold text-emerald-400">
+              {/* AC and Saves */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                <div className="p-3 border border-gray-800 rounded-lg bg-gray-950/40">
+                  <div className="text-xs uppercase text-gray-400">AC</div>
+                  <div className="text-lg font-semibold text-emerald-300">
                     {characterData.ac}
-                  </p>
+                  </div>
                 </div>
-
-                <div className="p-3 rounded-lg border border-gray-800 bg-gray-950/40">
-                  <p className="text-gray-400 text-sm mb-1">Saves</p>
-                  <p className="text-sm">
-                    <span className="text-emerald-400 font-medium">Fort:</span>{" "}
+                <div className="p-3 border border-gray-800 rounded-lg bg-gray-950/40">
+                  <div className="text-xs uppercase text-gray-400">Fort</div>
+                  <div className="text-lg font-semibold text-emerald-300">
                     {characterData.saves.fort}
-                  </p>
-                  <p className="text-sm">
-                    <span className="text-emerald-400 font-medium">Ref:</span>{" "}
+                  </div>
+                </div>
+                <div className="p-3 border border-gray-800 rounded-lg bg-gray-950/40">
+                  <div className="text-xs uppercase text-gray-400">Ref</div>
+                  <div className="text-lg font-semibold text-emerald-300">
                     {characterData.saves.ref}
-                  </p>
-                  <p className="text-sm">
-                    <span className="text-emerald-400 font-medium">Will:</span>{" "}
+                  </div>
+                </div>
+                <div className="p-3 border border-gray-800 rounded-lg bg-gray-950/40">
+                  <div className="text-xs uppercase text-gray-400">Will</div>
+                  <div className="text-lg font-semibold text-emerald-300">
                     {characterData.saves.will}
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>
