@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/Card";
-import { Swords, ListChecks, Backpack, StickyNote } from "lucide-react";
+import { Swords, ListChecks, Backpack, StickyNote, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
+import { characterData } from "../data/characterData";
 
 const tabs = [
   { id: "battle", label: "Battle", icon: Swords },
@@ -14,6 +15,7 @@ type TabId = typeof tabs[number]["id"];
 
 export default function CharacterSheetPage() {
   const [activeTab, setActiveTab] = useState<TabId>("battle");
+  const [currentHP, setCurrentHP] = useState(characterData.hp);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-black text-gray-200 p-4 sm:p-6">
@@ -58,12 +60,59 @@ export default function CharacterSheetPage() {
         <CardContent className="min-h-[300px] sm:min-h-[400px] text-gray-300 text-sm sm:text-base leading-relaxed space-y-4">
           {activeTab === "battle" && (
             <div>
-              <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-3">
+              <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-4">
                 Battle
               </h2>
-              <p>Her kan vi vise AC, HP, Saves, våben mv.</p>
+
+              {/* HP Slider */}
+              <div className="mb-6">
+                <label className="block mb-2 text-sm font-medium text-gray-400">
+                  Hit Points (HP)
+                </label>
+                <input
+                  type="range"
+                  min={0}
+                  max={characterData.hp}
+                  value={currentHP}
+                  onChange={(e) => setCurrentHP(Number(e.target.value))}
+                  className="w-full accent-emerald-500"
+                />
+                <div className="flex justify-between mt-1 text-sm">
+                  <span className="text-red-400">0</span>
+                  <span className="text-emerald-300 font-semibold">
+                    {currentHP} / {characterData.hp}
+                  </span>
+                </div>
+              </div>
+
+              {/* AC + Saves */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-3 rounded-lg border border-gray-800 bg-gray-950/40">
+                  <p className="text-gray-400 text-sm">Armor Class (AC)</p>
+                  <p className="text-2xl font-bold text-emerald-400">
+                    {characterData.ac}
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-lg border border-gray-800 bg-gray-950/40">
+                  <p className="text-gray-400 text-sm mb-1">Saves</p>
+                  <p className="text-sm">
+                    <span className="text-emerald-400 font-medium">Fort:</span>{" "}
+                    {characterData.saves.fort}
+                  </p>
+                  <p className="text-sm">
+                    <span className="text-emerald-400 font-medium">Ref:</span>{" "}
+                    {characterData.saves.ref}
+                  </p>
+                  <p className="text-sm">
+                    <span className="text-emerald-400 font-medium">Will:</span>{" "}
+                    {characterData.saves.will}
+                  </p>
+                </div>
+              </div>
             </div>
           )}
+
           {activeTab === "skills" && (
             <div>
               <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-3">
@@ -72,6 +121,7 @@ export default function CharacterSheetPage() {
               <p>Her kan vi vise færdigheder, modifiers og lign.</p>
             </div>
           )}
+
           {activeTab === "gear" && (
             <div>
               <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-3">
@@ -80,6 +130,7 @@ export default function CharacterSheetPage() {
               <p>Her kan vi vise alt udstyr fra characterData.gear.</p>
             </div>
           )}
+
           {activeTab === "notes" && (
             <div>
               <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-3">
