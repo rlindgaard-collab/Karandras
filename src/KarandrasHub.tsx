@@ -137,16 +137,23 @@ export default function KarandrasHub() {
                      bg-[radial-gradient(ellipse_at_center,rgba(16,24,16,0.35),rgba(2,4,2,0.7))] 
                      shadow-[0_0_40px_rgba(16,185,129,0.08)]"
         >
-          {/* Portræt i midten med åndende aura */}
+          {/* Portræt i midten med åndende aura, klikbart */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <div className="aura"></div>
-            <img
-              src={portraitUrl}
-              alt="Karandras portrait"
-              className="relative h-56 w-56 rounded-full border-4 border-emerald-700 
-                         shadow-[0_0_35px_rgba(16,185,129,0.5)] 
-                         object-cover object-top slow-pulse z-10"
-            />
+            <button
+              onClick={() => navigate("/character-sheet")}
+              className="relative group"
+            >
+              <div className="aura"></div>
+              <img
+                src={portraitUrl}
+                alt="Karandras portrait"
+                className="relative h-56 w-56 rounded-full border-4 border-emerald-700 
+                           shadow-[0_0_35px_rgba(16,185,129,0.5)] 
+                           object-cover object-top slow-pulse z-10 
+                           group-hover:shadow-[0_0_50px_rgba(16,185,129,0.9)] 
+                           transition-shadow"
+              />
+            </button>
           </div>
 
           {/* Ikoner rundt om */}
