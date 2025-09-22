@@ -37,7 +37,7 @@ export default function CharacterSheetPage() {
     setChangeValue(0);
   };
 
-  const rollSave = (
+  const rollCheck = (
     type: "fort" | "ref" | "will" | "initiative",
     current: number | null,
     setResult: React.Dispatch<React.SetStateAction<number | null>>
@@ -51,12 +51,13 @@ export default function CharacterSheetPage() {
 
     const d20 = Math.floor(Math.random() * 20) + 1;
     const modifier =
-      type === "initiative" ? characterData.initiative : characterData.saves[type];
+      type === "initiative"
+        ? characterData.initiative
+        : characterData.saves[type];
     const total = d20 + modifier;
-
     setResult(total);
     setLastRoll(
-      `${type === "initiative" ? "Initiative" : type.toUpperCase()} Roll: ${d20} (d20) + ${modifier} (modifier) = ${total}`
+      `${type.toUpperCase()} Check: ${d20} (d20) + ${modifier} (modifier) = ${total}`
     );
   };
 
@@ -108,62 +109,66 @@ export default function CharacterSheetPage() {
                 Battle
               </h2>
 
-              {/* HP Slider + controls */}
-              <div className="mb-6">
-                <label className="block text-sm text-gray-400 mb-2">
-                  Hit Points
-                </label>
-                <input
-                  type="range"
-                  min={0}
-                  max={characterData.hp}
-                  value={currentHp}
-                  onChange={(e) => setCurrentHp(parseInt(e.target.value))}
-                  className="w-full accent-emerald-500"
-                />
-                <div className="flex justify-between items-center mt-2 text-sm">
-                  <span>
-                    {currentHp} / {characterData.hp}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      value={changeValue}
-                      onChange={(e) => setChangeValue(Number(e.target.value))}
-                      className="w-20 rounded bg-gray-800 border border-gray-700 p-1 text-center text-gray-200"
-                    />
-                    <select
-                      value={mode}
-                      onChange={(e) =>
-                        setMode(e.target.value as "damage" | "heal")
-                      }
-                      className="rounded bg-gray-800 border border-gray-700 p-1 text-gray-200"
-                    >
-                      <option value="damage">Damage</option>
-                      <option value="heal">Heal</option>
-                    </select>
-                    <button
-                      onClick={applyChange}
-                      className="px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-600 text-sm font-medium"
-                    >
-                      Apply
-                    </button>
+              {/* HP + AC */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                {/* HP */}
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">
+                    Hit Points
+                  </label>
+                  <input
+                    type="range"
+                    min={0}
+                    max={characterData.hp}
+                    value={currentHp}
+                    onChange={(e) => setCurrentHp(parseInt(e.target.value))}
+                    className="w-full accent-emerald-500"
+                  />
+                  <div className="flex justify-between items-center mt-2 text-sm">
+                    <span>
+                      {currentHp} / {characterData.hp}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        value={changeValue}
+                        onChange={(e) => setChangeValue(Number(e.target.value))}
+                        className="w-20 rounded bg-gray-800 border border-gray-700 p-1 text-center text-gray-200"
+                      />
+                      <select
+                        value={mode}
+                        onChange={(e) =>
+                          setMode(e.target.value as "damage" | "heal")
+                        }
+                        className="rounded bg-gray-800 border border-gray-700 p-1 text-gray-200"
+                      >
+                        <option value="damage">Damage</option>
+                        <option value="heal">Heal</option>
+                      </select>
+                      <button
+                        onClick={applyChange}
+                        className="px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-600 text-sm font-medium"
+                      >
+                        Apply
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* AC, Saves & Initiative */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                <div className="p-3 rounded bg-gray-800/60 border border-gray-700 text-center">
-                  <span className="block text-xs text-gray-400">AC</span>
-                  <span className="text-lg font-semibold text-emerald-300">
+                {/* AC */}
+                <div className="p-4 rounded bg-gray-800/60 border border-gray-700 flex flex-col items-center justify-center">
+                  <span className="block text-xs text-gray-400">Armor Class</span>
+                  <span className="text-2xl font-bold text-emerald-300">
                     {characterData.ac}
                   </span>
                 </div>
+              </div>
 
-                {/* Fort */}
+              {/* Saves + Initiative */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {/* Fort Save */}
                 <button
-                  onClick={() => rollSave("fort", fortResult, setFortResult)}
+                  onClick={() => rollCheck("fort", fortResult, setFortResult)}
                   className={`p-3 rounded border text-center transition-all ${
                     fortResult !== null
                       ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
@@ -176,9 +181,9 @@ export default function CharacterSheetPage() {
                   </span>
                 </button>
 
-                {/* Ref */}
+                {/* Ref Save */}
                 <button
-                  onClick={() => rollSave("ref", refResult, setRefResult)}
+                  onClick={() => rollCheck("ref", refResult, setRefResult)}
                   className={`p-3 rounded border text-center transition-all ${
                     refResult !== null
                       ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
@@ -191,9 +196,9 @@ export default function CharacterSheetPage() {
                   </span>
                 </button>
 
-                {/* Will */}
+                {/* Will Save */}
                 <button
-                  onClick={() => rollSave("will", willResult, setWillResult)}
+                  onClick={() => rollCheck("will", willResult, setWillResult)}
                   className={`p-3 rounded border text-center transition-all ${
                     willResult !== null
                       ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
@@ -206,18 +211,16 @@ export default function CharacterSheetPage() {
                   </span>
                 </button>
 
-                {/* Initiative 👇 */}
+                {/* Initiative */}
                 <button
-                  onClick={() =>
-                    rollSave("initiative", initResult, setInitResult)
-                  }
+                  onClick={() => rollCheck("initiative", initResult, setInitResult)}
                   className={`p-3 rounded border text-center transition-all ${
                     initResult !== null
                       ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
                       : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
                   }`}
                 >
-                  <span className="block text-xs text-gray-400">Initiative</span>
+                  <span className="block text-xs text-gray-400">Init</span>
                   <span className="text-lg font-semibold text-emerald-300">
                     {initResult ?? characterData.initiative}
                   </span>
