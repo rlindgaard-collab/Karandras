@@ -51,7 +51,6 @@ export default function CharacterSheetPage() {
     modifier: number
   ) => {
     if (current !== null) {
-      // Reset
       setResult(null);
       setLastRoll("");
       return;
@@ -142,18 +141,24 @@ export default function CharacterSheetPage() {
                     {currentHp} / {characterData.hp}
                   </span>
                   <div className="flex items-center gap-2">
-                    <input
-                      type="number"
+                    {/* Select i stedet for input number */}
+                    <select
                       value={changeValue}
                       onChange={(e) => setChangeValue(Number(e.target.value))}
-                      className="w-20 rounded bg-gray-800 border border-gray-700 p-1 text-center text-gray-200"
-                    />
+                      className="rounded bg-gray-800 border border-gray-700 p-2 text-gray-200"
+                    >
+                      {Array.from({ length: characterData.hp + 1 }, (_, i) => (
+                        <option key={i} value={i}>
+                          {i}
+                        </option>
+                      ))}
+                    </select>
                     <select
                       value={mode}
                       onChange={(e) =>
                         setMode(e.target.value as "damage" | "heal")
                       }
-                      className="rounded bg-gray-800 border border-gray-700 p-1 text-gray-200"
+                      className="rounded bg-gray-800 border border-gray-700 p-2 text-gray-200"
                     >
                       <option value="damage">Damage</option>
                       <option value="heal">Heal</option>
