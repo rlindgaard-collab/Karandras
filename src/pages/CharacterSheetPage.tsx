@@ -16,15 +16,11 @@ type TabId = typeof tabs[number]["id"];
 export default function CharacterSheetPage() {
   const [activeTab, setActiveTab] = useState<TabId>("battle");
 
-  // HP state med localStorage gemning
+  // HP state with localStorage
   const [currentHp, setCurrentHp] = useState<number>(() => {
     const saved = localStorage.getItem("currentHp");
     return saved ? parseInt(saved) : characterData.hp;
   });
-  useEffect(() => {
-    localStorage.setItem("currentHp", currentHp.toString());
-  }, [currentHp]);
-
   const [changeValue, setChangeValue] = useState<number>(0);
   const [mode, setMode] = useState<"damage" | "heal">("damage");
 
@@ -32,8 +28,12 @@ export default function CharacterSheetPage() {
   const [fortResult, setFortResult] = useState<number | null>(null);
   const [refResult, setRefResult] = useState<number | null>(null);
   const [willResult, setWillResult] = useState<number | null>(null);
-  const [initResult, setInitResult] = useState<number | null>(null);
+  const [initiativeResult, setInitiativeResult] = useState<number | null>(null);
   const [lastRoll, setLastRoll] = useState<string>("");
+
+  useEffect(() => {
+    localStorage.setItem("currentHp", currentHp.toString());
+  }, [currentHp]);
 
   const applyChange = () => {
     if (mode === "damage") {
@@ -44,13 +44,14 @@ export default function CharacterSheetPage() {
     setChangeValue(0);
   };
 
-  const rollValue = (
-    label: string,
-    modifier: number,
+  const rollCheck = (
+    type: "fort" | "ref" | "will" | "initiative",
     current: number | null,
-    setResult: React.Dispatch<React.SetStateAction<number | null>>
+    setResult: React.Dispatch<React.SetStateAction<number | null>>,
+    modifier: number
   ) => {
     if (current !== null) {
+      // Reset
       setResult(null);
       setLastRoll("");
       return;
@@ -59,7 +60,9 @@ export default function CharacterSheetPage() {
     const d20 = Math.floor(Math.random() * 20) + 1;
     const total = d20 + modifier;
     setResult(total);
-    setLastRoll(`${label}: ${d20} (d20) + ${modifier} (modifier) = ${total}`);
+    setLastRoll(
+      `${type.charAt(0).toUpperCase() + type.slice(1)}: ${d20} (d20) + ${modifier} (modifier) = ${total}`
+    );
   };
 
   return (
@@ -110,11 +113,14 @@ export default function CharacterSheetPage() {
                 Battle
               </h2>
 
-              {/* AC */}
-              <div className="mb-4 p-3 rounded bg-gray-800/60 border border-gray-700 text-center w-24">
+              {/* AC + Speed */}
+              <div className="mb-6 p-3 rounded bg-gray-800/60 border border-gray-700 text-center">
                 <span className="block text-xs text-gray-400">AC</span>
                 <span className="text-lg font-semibold text-emerald-300">
                   {characterData.ac}
+                </span>
+                <span className="block text-xs text-gray-400 mt-1">
+                  Speed: {characterData.speed} ft
                 </span>
               </div>
 
@@ -136,7 +142,7 @@ export default function CharacterSheetPage() {
                     {currentHp} / {characterData.hp}
                   </span>
                   <div className="flex items-center gap-2">
-                    {/* Mobilvenligt nummer input */}
+                    {/* Mobilvenligt number input med "rullehjul" */}
                     <input
                       type="number"
                       inputMode="numeric"
@@ -145,8 +151,7 @@ export default function CharacterSheetPage() {
                       step={1}
                       value={changeValue}
                       onChange={(e) => setChangeValue(Number(e.target.value))}
-                      className="w-16 rounded bg-gray-800 border border-gray-700 px-2 py-1 
-                                 text-center text-gray-200 text-sm appearance-none"
+                      className="w-16 rounded bg-gray-800 border border-gray-700 p-1 text-center text-gray-200 appearance-none"
                     />
                     <select
                       value={mode}
@@ -173,7 +178,7 @@ export default function CharacterSheetPage() {
                 {/* Fort Save */}
                 <button
                   onClick={() =>
-                    rollValue("Fort Save", characterData.saves.fort, fortResult, setFortResult)
+                    rollCheck("fort", fortResult, setFortResult, characterData.saves.fort)
                   }
                   className={`p-3 rounded border text-center transition-all ${
                     fortResult !== null
@@ -190,7 +195,7 @@ export default function CharacterSheetPage() {
                 {/* Ref Save */}
                 <button
                   onClick={() =>
-                    rollValue("Ref Save", characterData.saves.ref, refResult, setRefResult)
+                    rollCheck("ref", refResult, setRefResult, characterData.saves.ref)
                   }
                   className={`p-3 rounded border text-center transition-all ${
                     refResult !== null
@@ -207,7 +212,7 @@ export default function CharacterSheetPage() {
                 {/* Will Save */}
                 <button
                   onClick={() =>
-                    rollValue("Will Save", characterData.saves.will, willResult, setWillResult)
+                    rollCheck("will", willResult, setWillResult, characterData.saves.will)
                   }
                   className={`p-3 rounded border text-center transition-all ${
                     willResult !== null
@@ -224,17 +229,17 @@ export default function CharacterSheetPage() {
                 {/* Initiative */}
                 <button
                   onClick={() =>
-                    rollValue("Initiative", characterData.initiative, initResult, setInitResult)
+                    rollCheck("initiative", initiativeResult, setInitiativeResult, characterData.initiative)
                   }
                   className={`p-3 rounded border text-center transition-all ${
-                    initResult !== null
+                    initiativeResult !== null
                       ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
                       : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
                   }`}
                 >
                   <span className="block text-xs text-gray-400">Init</span>
                   <span className="text-lg font-semibold text-emerald-300">
-                    {initResult ?? characterData.initiative}
+                    {initiativeResult ?? characterData.initiative}
                   </span>
                 </button>
               </div>
