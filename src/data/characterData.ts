@@ -17,7 +17,7 @@ export const characterData = {
     ref: 24,
     will: 22,
   },
-  Initiative: 21,
+  initiative: 21,
   weapons: [
     {
       name: "Twin Blades",
