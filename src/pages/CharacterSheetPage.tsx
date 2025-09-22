@@ -142,16 +142,11 @@ export default function CharacterSheetPage() {
                     {currentHp} / {characterData.hp}
                   </span>
                   <div className="flex items-center gap-2">
-                    {/* Mobilvenligt number input med "rullehjul" */}
                     <input
                       type="number"
-                      inputMode="numeric"
-                      min={0}
-                      max={characterData.hp}
-                      step={1}
                       value={changeValue}
                       onChange={(e) => setChangeValue(Number(e.target.value))}
-                      className="w-16 rounded bg-gray-800 border border-gray-700 p-1 text-center text-gray-200 appearance-none"
+                      className="w-20 rounded bg-gray-800 border border-gray-700 p-1 text-center text-gray-200"
                     />
                     <select
                       value={mode}
