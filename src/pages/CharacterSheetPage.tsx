@@ -21,10 +21,11 @@ export default function CharacterSheetPage() {
   const [changeValue, setChangeValue] = useState<number>(0);
   const [mode, setMode] = useState<"damage" | "heal">("damage");
 
-  // Saves state
+  // Saves & Initiative state
   const [fortResult, setFortResult] = useState<number | null>(null);
   const [refResult, setRefResult] = useState<number | null>(null);
   const [willResult, setWillResult] = useState<number | null>(null);
+  const [initResult, setInitResult] = useState<number | null>(null);
   const [lastRoll, setLastRoll] = useState<string>("");
 
   const applyChange = () => {
@@ -37,7 +38,7 @@ export default function CharacterSheetPage() {
   };
 
   const rollSave = (
-    type: "fort" | "ref" | "will",
+    type: "fort" | "ref" | "will" | "initiative",
     current: number | null,
     setResult: React.Dispatch<React.SetStateAction<number | null>>
   ) => {
@@ -49,11 +50,13 @@ export default function CharacterSheetPage() {
     }
 
     const d20 = Math.floor(Math.random() * 20) + 1;
-    const modifier = characterData.saves[type];
+    const modifier =
+      type === "initiative" ? characterData.initiative : characterData.saves[type];
     const total = d20 + modifier;
+
     setResult(total);
     setLastRoll(
-      `${type.toUpperCase()} Save: ${d20} (d20) + ${modifier} (modifier) = ${total}`
+      `${type === "initiative" ? "Initiative" : type.toUpperCase()} Roll: ${d20} (d20) + ${modifier} (modifier) = ${total}`
     );
   };
 
@@ -149,8 +152,8 @@ export default function CharacterSheetPage() {
                 </div>
               </div>
 
-              {/* AC and Saves */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {/* AC, Saves & Initiative */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                 <div className="p-3 rounded bg-gray-800/60 border border-gray-700 text-center">
                   <span className="block text-xs text-gray-400">AC</span>
                   <span className="text-lg font-semibold text-emerald-300">
@@ -158,7 +161,7 @@ export default function CharacterSheetPage() {
                   </span>
                 </div>
 
-                {/* Fort Save */}
+                {/* Fort */}
                 <button
                   onClick={() => rollSave("fort", fortResult, setFortResult)}
                   className={`p-3 rounded border text-center transition-all ${
@@ -173,7 +176,7 @@ export default function CharacterSheetPage() {
                   </span>
                 </button>
 
-                {/* Ref Save */}
+                {/* Ref */}
                 <button
                   onClick={() => rollSave("ref", refResult, setRefResult)}
                   className={`p-3 rounded border text-center transition-all ${
@@ -188,7 +191,7 @@ export default function CharacterSheetPage() {
                   </span>
                 </button>
 
-                {/* Will Save */}
+                {/* Will */}
                 <button
                   onClick={() => rollSave("will", willResult, setWillResult)}
                   className={`p-3 rounded border text-center transition-all ${
@@ -200,6 +203,23 @@ export default function CharacterSheetPage() {
                   <span className="block text-xs text-gray-400">Will</span>
                   <span className="text-lg font-semibold text-emerald-300">
                     {willResult ?? characterData.saves.will}
+                  </span>
+                </button>
+
+                {/* Initiative 👇 */}
+                <button
+                  onClick={() =>
+                    rollSave("initiative", initResult, setInitResult)
+                  }
+                  className={`p-3 rounded border text-center transition-all ${
+                    initResult !== null
+                      ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                      : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
+                  }`}
+                >
+                  <span className="block text-xs text-gray-400">Initiative</span>
+                  <span className="text-lg font-semibold text-emerald-300">
+                    {initResult ?? characterData.initiative}
                   </span>
                 </button>
               </div>
