@@ -16,7 +16,7 @@ type TabId = typeof tabs[number]["id"];
 export default function CharacterSheetPage() {
   const [activeTab, setActiveTab] = useState<TabId>("battle");
 
-  // HP state with localStorage
+  // HP state med localStorage
   const [currentHp, setCurrentHp] = useState<number>(() => {
     const saved = localStorage.getItem("currentHp");
     return saved ? parseInt(saved) : characterData.hp;
@@ -34,15 +34,15 @@ export default function CharacterSheetPage() {
     localStorage.setItem("currentHp", currentHp.toString());
   }, [currentHp]);
 
-  const effectiveHp = pendingHp !== null ? pendingHp : currentHp;
-  const diff = pendingHp !== null ? pendingHp - currentHp : 0;
-
   const applyChange = () => {
     if (pendingHp !== null) {
       setCurrentHp(pendingHp);
       setPendingHp(null);
     }
   };
+
+  const effectiveHp = pendingHp !== null ? pendingHp : currentHp;
+  const diff = pendingHp !== null ? pendingHp - currentHp : 0;
 
   const rollCheck = (
     type: "fort" | "ref" | "will" | "initiative",
@@ -51,7 +51,6 @@ export default function CharacterSheetPage() {
     modifier: number
   ) => {
     if (current !== null) {
-      // Reset
       setResult(null);
       setLastRoll("");
       return;
@@ -124,11 +123,25 @@ export default function CharacterSheetPage() {
                 </span>
               </div>
 
-              {/* HP Slider + Apply */}
-              <div className="mb-6">
+              {/* HP Slider (med diff over) */}
+              <div className="mb-6 relative">
                 <label className="block text-sm text-gray-400 mb-2">
                   Hit Points
                 </label>
+
+                {/* Diff tal over slider */}
+                {diff !== 0 && (
+                  <div
+                    className={`absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-bold transition-all duration-300 animate-pulse ${
+                      diff > 0
+                        ? "text-emerald-400 drop-shadow-[0_0_6px_rgba(16,185,129,0.9)]"
+                        : "text-red-400 drop-shadow-[0_0_6px_rgba(239,68,68,0.9)]"
+                    }`}
+                  >
+                    {diff > 0 ? `+${diff}` : diff}
+                  </div>
+                )}
+
                 <input
                   type="range"
                   min={0}
@@ -141,10 +154,10 @@ export default function CharacterSheetPage() {
                       to right,
                       ${
                         diff > 0
-                          ? "rgba(16,185,129,0.7)" // grønt ved heal
+                          ? "rgba(16,185,129,0.7)"
                           : diff < 0
-                          ? "rgba(239,68,68,0.7)" // rødt ved skade
-                          : "rgba(16,185,129,0.5)" // normal emerald
+                          ? "rgba(239,68,68,0.7)"
+                          : "rgba(16,185,129,0.5)"
                       } ${(effectiveHp / characterData.hp) * 100}%,
                       rgba(31,41,55,0.8) ${(effectiveHp / characterData.hp) * 100}%
                     )`,
@@ -154,15 +167,6 @@ export default function CharacterSheetPage() {
                   <span>
                     {effectiveHp} / {characterData.hp}
                   </span>
-                  {diff !== 0 && (
-                    <span
-                      className={`font-semibold ${
-                        diff > 0 ? "text-emerald-400" : "text-red-400"
-                      }`}
-                    >
-                      {diff > 0 ? `+${diff}` : diff}
-                    </span>
-                  )}
                   {pendingHp !== null && (
                     <button
                       onClick={applyChange}
@@ -230,7 +234,12 @@ export default function CharacterSheetPage() {
                 {/* Initiative */}
                 <button
                   onClick={() =>
-                    rollCheck("initiative", initiativeResult, setInitiativeResult, characterData.initiative)
+                    rollCheck(
+                      "initiative",
+                      initiativeResult,
+                      setInitiativeResult,
+                      characterData.initiative
+                    )
                   }
                   className={`p-3 rounded border text-center transition-all ${
                     initiativeResult !== null
