@@ -16,26 +16,24 @@ type TabId = typeof tabs[number]["id"];
 export default function CharacterSheetPage() {
   const [activeTab, setActiveTab] = useState<TabId>("battle");
 
-  // HP state med localStorage integration
-  const [currentHp, setCurrentHp] = useState(() => {
+  // HP state with localStorage
+  const [currentHp, setCurrentHp] = useState<number>(() => {
     const saved = localStorage.getItem("currentHp");
-    return saved ? parseInt(saved, 10) : characterData.hp;
+    return saved ? parseInt(saved) : characterData.hp;
   });
-
   const [changeValue, setChangeValue] = useState<number>(0);
   const [mode, setMode] = useState<"damage" | "heal">("damage");
-
-  // Gem HP i localStorage når det ændrer sig
-  useEffect(() => {
-    localStorage.setItem("currentHp", currentHp.toString());
-  }, [currentHp]);
 
   // Saves state
   const [fortResult, setFortResult] = useState<number | null>(null);
   const [refResult, setRefResult] = useState<number | null>(null);
   const [willResult, setWillResult] = useState<number | null>(null);
-  const [initResult, setInitResult] = useState<number | null>(null);
+  const [initiativeResult, setInitiativeResult] = useState<number | null>(null);
   const [lastRoll, setLastRoll] = useState<string>("");
+
+  useEffect(() => {
+    localStorage.setItem("currentHp", currentHp.toString());
+  }, [currentHp]);
 
   const applyChange = () => {
     if (mode === "damage") {
@@ -46,10 +44,11 @@ export default function CharacterSheetPage() {
     setChangeValue(0);
   };
 
-  const rollSave = (
+  const rollCheck = (
     type: "fort" | "ref" | "will" | "initiative",
     current: number | null,
-    setResult: React.Dispatch<React.SetStateAction<number | null>>
+    setResult: React.Dispatch<React.SetStateAction<number | null>>,
+    modifier: number
   ) => {
     if (current !== null) {
       // Reset
@@ -59,12 +58,10 @@ export default function CharacterSheetPage() {
     }
 
     const d20 = Math.floor(Math.random() * 20) + 1;
-    const modifier =
-      type === "initiative" ? characterData.initiative : characterData.saves[type];
     const total = d20 + modifier;
     setResult(total);
     setLastRoll(
-      `${type.toUpperCase()} Roll: ${d20} (d20) + ${modifier} (modifier) = ${total}`
+      `${type.charAt(0).toUpperCase() + type.slice(1)}: ${d20} (d20) + ${modifier} (modifier) = ${total}`
     );
   };
 
@@ -116,11 +113,14 @@ export default function CharacterSheetPage() {
                 Battle
               </h2>
 
-              {/* AC */}
+              {/* AC + Speed */}
               <div className="mb-6 p-3 rounded bg-gray-800/60 border border-gray-700 text-center">
-                <span className="block text-xs text-gray-400">Armor Class</span>
+                <span className="block text-xs text-gray-400">AC</span>
                 <span className="text-lg font-semibold text-emerald-300">
                   {characterData.ac}
+                </span>
+                <span className="block text-xs text-gray-400 mt-1">
+                  Speed: {characterData.speed} ft
                 </span>
               </div>
 
@@ -172,7 +172,9 @@ export default function CharacterSheetPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {/* Fort Save */}
                 <button
-                  onClick={() => rollSave("fort", fortResult, setFortResult)}
+                  onClick={() =>
+                    rollCheck("fort", fortResult, setFortResult, characterData.saves.fort)
+                  }
                   className={`p-3 rounded border text-center transition-all ${
                     fortResult !== null
                       ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
@@ -187,7 +189,9 @@ export default function CharacterSheetPage() {
 
                 {/* Ref Save */}
                 <button
-                  onClick={() => rollSave("ref", refResult, setRefResult)}
+                  onClick={() =>
+                    rollCheck("ref", refResult, setRefResult, characterData.saves.ref)
+                  }
                   className={`p-3 rounded border text-center transition-all ${
                     refResult !== null
                       ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
@@ -202,7 +206,9 @@ export default function CharacterSheetPage() {
 
                 {/* Will Save */}
                 <button
-                  onClick={() => rollSave("will", willResult, setWillResult)}
+                  onClick={() =>
+                    rollCheck("will", willResult, setWillResult, characterData.saves.will)
+                  }
                   className={`p-3 rounded border text-center transition-all ${
                     willResult !== null
                       ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
@@ -218,17 +224,17 @@ export default function CharacterSheetPage() {
                 {/* Initiative */}
                 <button
                   onClick={() =>
-                    rollSave("initiative", initResult, setInitResult)
+                    rollCheck("initiative", initiativeResult, setInitiativeResult, characterData.initiative)
                   }
                   className={`p-3 rounded border text-center transition-all ${
-                    initResult !== null
+                    initiativeResult !== null
                       ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
                       : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
                   }`}
                 >
                   <span className="block text-xs text-gray-400">Init</span>
                   <span className="text-lg font-semibold text-emerald-300">
-                    {initResult ?? characterData.initiative}
+                    {initiativeResult ?? characterData.initiative}
                   </span>
                 </button>
               </div>
@@ -278,3 +284,4 @@ export default function CharacterSheetPage() {
     </div>
   );
 }
+
