@@ -17,7 +17,7 @@ export const characterData = {
     ref: 24,
     will: 22,
   },
-  perception: 21,
+  Initiative: 21,
   weapons: [
     {
       name: "Twin Blades",
