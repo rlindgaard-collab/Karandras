@@ -16,7 +16,7 @@ type TabId = typeof tabs[number]["id"];
 export default function CharacterSheetPage() {
   const [activeTab, setActiveTab] = useState<TabId>("battle");
 
-  // HP state med localStorage
+  // HP state med localStorage gemning
   const [currentHp, setCurrentHp] = useState<number>(() => {
     const saved = localStorage.getItem("currentHp");
     return saved ? parseInt(saved) : characterData.hp;
@@ -28,7 +28,7 @@ export default function CharacterSheetPage() {
   const [changeValue, setChangeValue] = useState<number>(0);
   const [mode, setMode] = useState<"damage" | "heal">("damage");
 
-  // Rolls
+  // Saves state
   const [fortResult, setFortResult] = useState<number | null>(null);
   const [refResult, setRefResult] = useState<number | null>(null);
   const [willResult, setWillResult] = useState<number | null>(null);
@@ -118,7 +118,7 @@ export default function CharacterSheetPage() {
                 </span>
               </div>
 
-              {/* HP controls */}
+              {/* HP Slider + controls */}
               <div className="mb-6">
                 <label className="block text-sm text-gray-400 mb-2">
                   Hit Points
@@ -136,19 +136,18 @@ export default function CharacterSheetPage() {
                     {currentHp} / {characterData.hp}
                   </span>
                   <div className="flex items-center gap-2">
-                    {/* Dropdown damage/heal amount */}
-                    <select
+                    {/* Mobilvenligt nummer input */}
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      max={characterData.hp}
+                      step={1}
                       value={changeValue}
                       onChange={(e) => setChangeValue(Number(e.target.value))}
-                      className="w-20 text-sm rounded bg-gray-800 border border-gray-700 p-2 text-center text-gray-200"
-                    >
-                      {Array.from({ length: characterData.hp + 1 }, (_, i) => (
-                        <option key={i} value={i}>
-                          {i}
-                        </option>
-                      ))}
-                    </select>
-
+                      className="w-16 rounded bg-gray-800 border border-gray-700 px-2 py-1 
+                                 text-center text-gray-200 text-sm appearance-none"
+                    />
                     <select
                       value={mode}
                       onChange={(e) =>
@@ -171,6 +170,7 @@ export default function CharacterSheetPage() {
 
               {/* Saves + Initiative */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {/* Fort Save */}
                 <button
                   onClick={() =>
                     rollValue("Fort Save", characterData.saves.fort, fortResult, setFortResult)
@@ -187,6 +187,7 @@ export default function CharacterSheetPage() {
                   </span>
                 </button>
 
+                {/* Ref Save */}
                 <button
                   onClick={() =>
                     rollValue("Ref Save", characterData.saves.ref, refResult, setRefResult)
@@ -203,6 +204,7 @@ export default function CharacterSheetPage() {
                   </span>
                 </button>
 
+                {/* Will Save */}
                 <button
                   onClick={() =>
                     rollValue("Will Save", characterData.saves.will, willResult, setWillResult)
@@ -219,6 +221,7 @@ export default function CharacterSheetPage() {
                   </span>
                 </button>
 
+                {/* Initiative */}
                 <button
                   onClick={() =>
                     rollValue("Initiative", characterData.initiative, initResult, setInitResult)
@@ -236,6 +239,7 @@ export default function CharacterSheetPage() {
                 </button>
               </div>
 
+              {/* Roll details */}
               {lastRoll && (
                 <div className="mt-4 text-sm text-gray-400">{lastRoll}</div>
               )}
