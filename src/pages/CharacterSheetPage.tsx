@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/Card";
 import { Swords, ListChecks, Backpack, StickyNote } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -16,12 +16,21 @@ type TabId = typeof tabs[number]["id"];
 export default function CharacterSheetPage() {
   const [activeTab, setActiveTab] = useState<TabId>("battle");
 
-  // HP state
-  const [currentHp, setCurrentHp] = useState(characterData.hp);
+  // HP state med localStorage integration
+  const [currentHp, setCurrentHp] = useState(() => {
+    const saved = localStorage.getItem("currentHp");
+    return saved ? parseInt(saved, 10) : characterData.hp;
+  });
+
   const [changeValue, setChangeValue] = useState<number>(0);
   const [mode, setMode] = useState<"damage" | "heal">("damage");
 
-  // Saves & Initiative state
+  // Gem HP i localStorage når det ændrer sig
+  useEffect(() => {
+    localStorage.setItem("currentHp", currentHp.toString());
+  }, [currentHp]);
+
+  // Saves state
   const [fortResult, setFortResult] = useState<number | null>(null);
   const [refResult, setRefResult] = useState<number | null>(null);
   const [willResult, setWillResult] = useState<number | null>(null);
@@ -37,7 +46,7 @@ export default function CharacterSheetPage() {
     setChangeValue(0);
   };
 
-  const rollCheck = (
+  const rollSave = (
     type: "fort" | "ref" | "will" | "initiative",
     current: number | null,
     setResult: React.Dispatch<React.SetStateAction<number | null>>
@@ -51,13 +60,11 @@ export default function CharacterSheetPage() {
 
     const d20 = Math.floor(Math.random() * 20) + 1;
     const modifier =
-      type === "initiative"
-        ? characterData.initiative
-        : characterData.saves[type];
+      type === "initiative" ? characterData.initiative : characterData.saves[type];
     const total = d20 + modifier;
     setResult(total);
     setLastRoll(
-      `${type.toUpperCase()} Check: ${d20} (d20) + ${modifier} (modifier) = ${total}`
+      `${type.toUpperCase()} Roll: ${d20} (d20) + ${modifier} (modifier) = ${total}`
     );
   };
 
@@ -109,58 +116,55 @@ export default function CharacterSheetPage() {
                 Battle
               </h2>
 
-              {/* HP + AC */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                {/* HP */}
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">
-                    Hit Points
-                  </label>
-                  <input
-                    type="range"
-                    min={0}
-                    max={characterData.hp}
-                    value={currentHp}
-                    onChange={(e) => setCurrentHp(parseInt(e.target.value))}
-                    className="w-full accent-emerald-500"
-                  />
-                  <div className="flex justify-between items-center mt-2 text-sm">
-                    <span>
-                      {currentHp} / {characterData.hp}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        value={changeValue}
-                        onChange={(e) => setChangeValue(Number(e.target.value))}
-                        className="w-20 rounded bg-gray-800 border border-gray-700 p-1 text-center text-gray-200"
-                      />
-                      <select
-                        value={mode}
-                        onChange={(e) =>
-                          setMode(e.target.value as "damage" | "heal")
-                        }
-                        className="rounded bg-gray-800 border border-gray-700 p-1 text-gray-200"
-                      >
-                        <option value="damage">Damage</option>
-                        <option value="heal">Heal</option>
-                      </select>
-                      <button
-                        onClick={applyChange}
-                        className="px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-600 text-sm font-medium"
-                      >
-                        Apply
-                      </button>
-                    </div>
-                  </div>
-                </div>
+              {/* AC */}
+              <div className="mb-6 p-3 rounded bg-gray-800/60 border border-gray-700 text-center">
+                <span className="block text-xs text-gray-400">Armor Class</span>
+                <span className="text-lg font-semibold text-emerald-300">
+                  {characterData.ac}
+                </span>
+              </div>
 
-                {/* AC */}
-                <div className="p-4 rounded bg-gray-800/60 border border-gray-700 flex flex-col items-center justify-center">
-                  <span className="block text-xs text-gray-400">Armor Class</span>
-                  <span className="text-2xl font-bold text-emerald-300">
-                    {characterData.ac}
+              {/* HP Slider + controls */}
+              <div className="mb-6">
+                <label className="block text-sm text-gray-400 mb-2">
+                  Hit Points
+                </label>
+                <input
+                  type="range"
+                  min={0}
+                  max={characterData.hp}
+                  value={currentHp}
+                  onChange={(e) => setCurrentHp(parseInt(e.target.value))}
+                  className="w-full accent-emerald-500"
+                />
+                <div className="flex justify-between items-center mt-2 text-sm">
+                  <span>
+                    {currentHp} / {characterData.hp}
                   </span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      value={changeValue}
+                      onChange={(e) => setChangeValue(Number(e.target.value))}
+                      className="w-20 rounded bg-gray-800 border border-gray-700 p-1 text-center text-gray-200"
+                    />
+                    <select
+                      value={mode}
+                      onChange={(e) =>
+                        setMode(e.target.value as "damage" | "heal")
+                      }
+                      className="rounded bg-gray-800 border border-gray-700 p-1 text-gray-200"
+                    >
+                      <option value="damage">Damage</option>
+                      <option value="heal">Heal</option>
+                    </select>
+                    <button
+                      onClick={applyChange}
+                      className="px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-600 text-sm font-medium"
+                    >
+                      Apply
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -168,7 +172,7 @@ export default function CharacterSheetPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {/* Fort Save */}
                 <button
-                  onClick={() => rollCheck("fort", fortResult, setFortResult)}
+                  onClick={() => rollSave("fort", fortResult, setFortResult)}
                   className={`p-3 rounded border text-center transition-all ${
                     fortResult !== null
                       ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
@@ -183,7 +187,7 @@ export default function CharacterSheetPage() {
 
                 {/* Ref Save */}
                 <button
-                  onClick={() => rollCheck("ref", refResult, setRefResult)}
+                  onClick={() => rollSave("ref", refResult, setRefResult)}
                   className={`p-3 rounded border text-center transition-all ${
                     refResult !== null
                       ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
@@ -198,7 +202,7 @@ export default function CharacterSheetPage() {
 
                 {/* Will Save */}
                 <button
-                  onClick={() => rollCheck("will", willResult, setWillResult)}
+                  onClick={() => rollSave("will", willResult, setWillResult)}
                   className={`p-3 rounded border text-center transition-all ${
                     willResult !== null
                       ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
@@ -213,7 +217,9 @@ export default function CharacterSheetPage() {
 
                 {/* Initiative */}
                 <button
-                  onClick={() => rollCheck("initiative", initResult, setInitResult)}
+                  onClick={() =>
+                    rollSave("initiative", initResult, setInitResult)
+                  }
                   className={`p-3 rounded border text-center transition-all ${
                     initResult !== null
                       ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
