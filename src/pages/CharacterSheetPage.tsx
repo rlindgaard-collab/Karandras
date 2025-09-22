@@ -21,8 +21,7 @@ export default function CharacterSheetPage() {
     const saved = localStorage.getItem("currentHp");
     return saved ? parseInt(saved) : characterData.hp;
   });
-  const [changeValue, setChangeValue] = useState<number>(0);
-  const [mode, setMode] = useState<"damage" | "heal">("damage");
+  const [pendingHp, setPendingHp] = useState<number | null>(null);
 
   // Saves state
   const [fortResult, setFortResult] = useState<number | null>(null);
@@ -35,13 +34,14 @@ export default function CharacterSheetPage() {
     localStorage.setItem("currentHp", currentHp.toString());
   }, [currentHp]);
 
+  const effectiveHp = pendingHp !== null ? pendingHp : currentHp;
+  const diff = pendingHp !== null ? pendingHp - currentHp : 0;
+
   const applyChange = () => {
-    if (mode === "damage") {
-      setCurrentHp((hp) => Math.max(0, hp - changeValue));
-    } else {
-      setCurrentHp((hp) => Math.min(characterData.hp, hp + changeValue));
+    if (pendingHp !== null) {
+      setCurrentHp(pendingHp);
+      setPendingHp(null);
     }
-    setChangeValue(0);
   };
 
   const rollCheck = (
@@ -51,6 +51,7 @@ export default function CharacterSheetPage() {
     modifier: number
   ) => {
     if (current !== null) {
+      // Reset
       setResult(null);
       setLastRoll("");
       return;
@@ -123,7 +124,7 @@ export default function CharacterSheetPage() {
                 </span>
               </div>
 
-              {/* HP Slider + controls */}
+              {/* HP Slider + Apply */}
               <div className="mb-6">
                 <label className="block text-sm text-gray-400 mb-2">
                   Hit Points
@@ -132,44 +133,44 @@ export default function CharacterSheetPage() {
                   type="range"
                   min={0}
                   max={characterData.hp}
-                  value={currentHp}
-                  onChange={(e) => setCurrentHp(parseInt(e.target.value))}
-                  className="w-full accent-emerald-500"
+                  value={effectiveHp}
+                  onChange={(e) => setPendingHp(parseInt(e.target.value))}
+                  className="w-full h-3 rounded-lg appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(
+                      to right,
+                      ${
+                        diff > 0
+                          ? "rgba(16,185,129,0.7)" // grønt ved heal
+                          : diff < 0
+                          ? "rgba(239,68,68,0.7)" // rødt ved skade
+                          : "rgba(16,185,129,0.5)" // normal emerald
+                      } ${(effectiveHp / characterData.hp) * 100}%,
+                      rgba(31,41,55,0.8) ${(effectiveHp / characterData.hp) * 100}%
+                    )`,
+                  }}
                 />
                 <div className="flex justify-between items-center mt-2 text-sm">
                   <span>
-                    {currentHp} / {characterData.hp}
+                    {effectiveHp} / {characterData.hp}
                   </span>
-                  <div className="flex items-center gap-2">
-                    {/* Select i stedet for input number */}
-                    <select
-                      value={changeValue}
-                      onChange={(e) => setChangeValue(Number(e.target.value))}
-                      className="rounded bg-gray-800 border border-gray-700 p-2 text-gray-200"
+                  {diff !== 0 && (
+                    <span
+                      className={`font-semibold ${
+                        diff > 0 ? "text-emerald-400" : "text-red-400"
+                      }`}
                     >
-                      {Array.from({ length: characterData.hp + 1 }, (_, i) => (
-                        <option key={i} value={i}>
-                          {i}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      value={mode}
-                      onChange={(e) =>
-                        setMode(e.target.value as "damage" | "heal")
-                      }
-                      className="rounded bg-gray-800 border border-gray-700 p-2 text-gray-200"
-                    >
-                      <option value="damage">Damage</option>
-                      <option value="heal">Heal</option>
-                    </select>
+                      {diff > 0 ? `+${diff}` : diff}
+                    </span>
+                  )}
+                  {pendingHp !== null && (
                     <button
                       onClick={applyChange}
-                      className="px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-600 text-sm font-medium"
+                      className="ml-4 px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-600 text-sm font-medium"
                     >
                       Apply
                     </button>
-                  </div>
+                  )}
                 </div>
               </div>
 
