@@ -18,7 +18,7 @@ export const characterData = {
     will: 22,
   },
   initiative: 26,
-  speed: 30,
+  speed: 50,
   weapons: [
     {
       name: "Twin Blades",
