@@ -16,9 +16,6 @@ type TabId = typeof tabs[number]["id"];
 // Typen for rul-resultater
 type RollResult = { d20: number; total: number };
 
-// Hjælper til at formatere tal med "+"
-const fmt = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
-
 export default function CharacterSheetPage() {
   const [activeTab, setActiveTab] = useState<TabId>("battle");
 
@@ -71,7 +68,7 @@ export default function CharacterSheetPage() {
     const total = d20 + modifier;
     setResult({ d20, total });
     setLastRoll(
-      `${type.charAt(0).toUpperCase() + type.slice(1)}: ${d20} (d20) + ${fmt(modifier)} (modifier) = ${fmt(total)}`
+      `${type.charAt(0).toUpperCase() + type.slice(1)}: ${d20} (d20) + ${modifier} (modifier) = ${total}`
     );
   };
 
@@ -115,7 +112,7 @@ export default function CharacterSheetPage() {
               result?.d20 === 1 ? "text-red-300" : "text-emerald-300"
             }`}
           >
-            {result ? fmt(result.total) : fmt(data.value)}
+            {result ? result.total : data.value}
           </span>
         </button>
         {data.improved && (
@@ -284,7 +281,7 @@ export default function CharacterSheetPage() {
                       initiativeResult?.d20 === 1 ? "text-red-300" : "text-emerald-300"
                     }`}
                   >
-                    {initiativeResult ? fmt(initiativeResult.total) : fmt(characterData.initiative)}
+                    {initiativeResult ? initiativeResult.total : characterData.initiative}
                   </span>
                 </button>
               </div>
