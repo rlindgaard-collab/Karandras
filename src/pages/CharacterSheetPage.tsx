@@ -387,10 +387,22 @@ export default function CharacterSheetPage() {
 
               {attackLog && <div className="mt-2 text-sm text-gray-400">{attackLog}</div>}
 
+              {/* Damage visning */}
               {damageResult !== null && (
-                <div className="mt-4 p-3 rounded bg-gray-800/60 border border-gray-700">
-                  <div className="text-emerald-300 font-semibold">Damage: {damageResult}</div>
-                  <div className="text-sm text-gray-400 mt-1">{damageBreakdown}</div>
+                <div className="mt-4 space-y-2">
+                  {/* Damage Total */}
+                  <div
+                    className="w-full p-3 rounded border text-center transition-all
+                               bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                  >
+                    <span className="block text-xs text-gray-400">Damage</span>
+                    <span className="text-2xl font-bold text-emerald-300">
+                      {damageResult}
+                    </span>
+                  </div>
+
+                  {/* Breakdown */}
+                  <div className="text-sm text-gray-400">{damageBreakdown}</div>
                 </div>
               )}
 
