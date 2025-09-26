@@ -192,7 +192,17 @@ export default function CharacterSheetPage() {
                       : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
                   }`}
                 >
-                  <span className="block text-xs text-gray-400">Fort</span>
+                  <span className="flex items-center justify-center gap-1 text-xs text-gray-400">
+                    Fort
+                    {characterData.saves.fort.improved.active && (
+                      <span
+                        className="text-emerald-400 font-bold cursor-pointer"
+                        title={characterData.saves.fort.improved.note}
+                      >
+                        Λ
+                      </span>
+                    )}
+                  </span>
                   <span className="text-lg font-semibold text-emerald-300">
                     {fortResult ?? characterData.saves.fort.value}
                   </span>
@@ -209,7 +219,17 @@ export default function CharacterSheetPage() {
                       : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
                   }`}
                 >
-                  <span className="block text-xs text-gray-400">Ref</span>
+                  <span className="flex items-center justify-center gap-1 text-xs text-gray-400">
+                    Ref
+                    {characterData.saves.ref.improved.active && (
+                      <span
+                        className="text-emerald-400 font-bold cursor-pointer"
+                        title={characterData.saves.ref.improved.note}
+                      >
+                        Λ
+                      </span>
+                    )}
+                  </span>
                   <span className="text-lg font-semibold text-emerald-300">
                     {refResult ?? characterData.saves.ref.value}
                   </span>
@@ -226,7 +246,17 @@ export default function CharacterSheetPage() {
                       : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
                   }`}
                 >
-                  <span className="block text-xs text-gray-400">Will</span>
+                  <span className="flex items-center justify-center gap-1 text-xs text-gray-400">
+                    Will
+                    {characterData.saves.will.improved.active && (
+                      <span
+                        className="text-emerald-400 font-bold cursor-pointer"
+                        title={characterData.saves.will.improved.note}
+                      >
+                        Λ
+                      </span>
+                    )}
+                  </span>
                   <span className="text-lg font-semibold text-emerald-300">
                     {willResult ?? characterData.saves.will.value}
                   </span>
