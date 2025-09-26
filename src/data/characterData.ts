@@ -13,8 +13,16 @@ export const characterData = {
   ac: 34,
   hp: 203,
   saves: {
-    fort: { value: 24, improved: true, note: "Warden's Endurance: On a success, treat as a critical success. " },
-    ref: { value: 24, improved: true, note: "Natural Reflexes: On a success, treat as a critical success. " },
+    fort: {
+      value: 24,
+      improved: true,
+      note: "Warden's Endurance: On a success, treat as a critical success. ",
+    },
+    ref: {
+      value: 24,
+      improved: true,
+      note: "Natural Reflexes: On a success, treat as a critical success. ",
+    },
     will: {
       value: 22,
       improved: false,
@@ -23,6 +31,12 @@ export const characterData = {
   },
   initiative: 26,
   speed: 50,
+  // Attack modifiers til Attack 1, 2 og 3+
+  attacks: {
+    1: 32, // første angreb
+    2: 27, // andet angreb (MAP)
+    3: 22, // tredje+ angreb (MAP)
+  },
   weapons: [
     {
       name: "Twin Blades",
