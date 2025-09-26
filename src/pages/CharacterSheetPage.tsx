@@ -32,7 +32,9 @@ export default function CharacterSheetPage() {
   const [lastRoll, setLastRoll] = useState<string>("");
 
   // Tooltip state
-  const [tooltip, setTooltip] = useState<{ from: "fort" | "ref" | "will"; text: string } | null>(null);
+  const [tooltip, setTooltip] = useState<{ from: "fort" | "ref" | "will"; text: string } | null>(
+    null
+  );
 
   // Attack state
   const [attackCount, setAttackCount] = useState(1);
@@ -331,10 +333,11 @@ export default function CharacterSheetPage() {
                     }`}
                   >
                     {attackResult
-                      ? attackResult.total
+                      ? `AC ${attackResult.total}`
                       : (() => {
                           const step = attackCount > 3 ? 3 : attackCount;
-                          return characterData.attacks[step as 1 | 2 | 3];
+                          const modifier = characterData.attacks[step as 1 | 2 | 3];
+                          return modifier >= 0 ? `+${modifier}` : `${modifier}`;
                         })()}
                   </span>
                 </button>
@@ -347,9 +350,7 @@ export default function CharacterSheetPage() {
                 </button>
               </div>
 
-              {attackLog && (
-                <div className="mt-2 text-sm text-gray-400">{attackLog}</div>
-              )}
+              {attackLog && <div className="mt-2 text-sm text-gray-400">{attackLog}</div>}
 
               {tooltip && (
                 <div className="mt-4 p-3 rounded bg-gray-800/90 border border-emerald-500 text-sm text-emerald-200 shadow-lg">
