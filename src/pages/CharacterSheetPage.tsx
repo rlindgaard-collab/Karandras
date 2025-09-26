@@ -13,25 +13,31 @@ const tabs = [
 
 type TabId = typeof tabs[number]["id"];
 
+// Typen for rul-resultater
+type RollResult = { d20: number; total: number };
+
+// Hjælper til at formatere tal med "+"
+const fmt = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
+
 export default function CharacterSheetPage() {
   const [activeTab, setActiveTab] = useState<TabId>("battle");
 
   // HP state
   const [currentHp, setCurrentHp] = useState<number>(() => {
     const saved = localStorage.getItem("currentHp");
-    return saved ? parseInt(saved) : characterData.hp;
+    return saved ? parseInt(saved, 10) : characterData.hp;
   });
   const [pendingHp, setPendingHp] = useState<number | null>(null);
 
   // Saves & Initiative
-  const [fortResult, setFortResult] = useState<number | null>(null);
-  const [refResult, setRefResult] = useState<number | null>(null);
-  const [willResult, setWillResult] = useState<number | null>(null);
-  const [initiativeResult, setInitiativeResult] = useState<number | null>(null);
+  const [fortResult, setFortResult] = useState<RollResult | null>(null);
+  const [refResult, setRefResult] = useState<RollResult | null>(null);
+  const [willResult, setWillResult] = useState<RollResult | null>(null);
+  const [initiativeResult, setInitiativeResult] = useState<RollResult | null>(null);
   const [lastRoll, setLastRoll] = useState<string>("");
 
-  // Tooltip state for improved saves
-  const [tooltip, setTooltip] = useState<string | null>(null);
+  // Tooltip state
+  const [tooltip, setTooltip] = useState<{ from: "fort" | "ref" | "will"; text: string } | null>(null);
 
   useEffect(() => {
     localStorage.setItem("currentHp", currentHp.toString());
@@ -47,13 +53,15 @@ export default function CharacterSheetPage() {
   const effectiveHp = pendingHp !== null ? pendingHp : currentHp;
   const diff = pendingHp !== null ? pendingHp - currentHp : 0;
 
+  // Roll funktion
   const rollCheck = (
     type: "fort" | "ref" | "will" | "initiative",
-    current: number | null,
-    setResult: React.Dispatch<React.SetStateAction<number | null>>,
+    current: RollResult | null,
+    setResult: React.Dispatch<React.SetStateAction<RollResult | null>>,
     modifier: number
   ) => {
     if (current !== null) {
+      // reset når man trykker igen
       setResult(null);
       setLastRoll("");
       return;
@@ -61,13 +69,13 @@ export default function CharacterSheetPage() {
 
     const d20 = Math.floor(Math.random() * 20) + 1;
     const total = d20 + modifier;
-    setResult(total);
+    setResult({ d20, total });
     setLastRoll(
-      `${type.charAt(0).toUpperCase() + type.slice(1)}: ${d20} (d20) + ${modifier} (modifier) = ${total}`
+      `${type.charAt(0).toUpperCase() + type.slice(1)}: ${d20} (d20) + ${fmt(modifier)} (modifier) = ${fmt(total)}`
     );
   };
 
-  // Helper: Save button with optional Λ
+  // Save button
   const SaveButton = ({
     label,
     result,
@@ -75,38 +83,54 @@ export default function CharacterSheetPage() {
     data,
   }: {
     label: "fort" | "ref" | "will";
-    result: number | null;
-    setResult: React.Dispatch<React.SetStateAction<number | null>>;
+    result: RollResult | null;
+    setResult: React.Dispatch<React.SetStateAction<RollResult | null>>;
     data: { value: number; improved: boolean; note: string };
-  }) => (
-    <div className="relative">
-      <button
-        onClick={() => rollCheck(label, result, setResult, data.value)}
-        className={`w-full p-3 rounded border text-center transition-all ${
-          result !== null
-            ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
-            : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
-        }`}
-      >
-        <span className="block text-xs text-gray-400">
-          {label.charAt(0).toUpperCase() + label.slice(1)}
-        </span>
-        <span className="text-lg font-semibold text-emerald-300">
-          {result ?? data.value}
-        </span>
-      </button>
-      {data.improved && (
-        <span
-          onClick={() =>
-            setTooltip(tooltip === data.note ? null : data.note)
-          }
-          className="absolute -top-2 -right-2 text-emerald-400 cursor-pointer text-lg"
+  }) => {
+    let classes =
+      "w-full p-3 rounded border text-center transition-all bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40";
+
+    if (result) {
+      if (result.d20 === 1) {
+        classes =
+          "w-full p-3 rounded border text-center transition-all bg-red-900/60 border-red-400 shadow-[0_0_20px_rgba(239,68,68,0.8)]";
+      } else {
+        classes =
+          "w-full p-3 rounded border text-center transition-all bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]";
+      }
+    }
+
+    return (
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => rollCheck(label, result, setResult, data.value)}
+          className={classes}
         >
-          Λ
-        </span>
-      )}
-    </div>
-  );
+          <span className="block text-xs text-gray-400">
+            {label.charAt(0).toUpperCase() + label.slice(1)}
+          </span>
+          <span
+            className={`text-lg font-semibold ${
+              result?.d20 === 1 ? "text-red-300" : "text-emerald-300"
+            }`}
+          >
+            {result ? fmt(result.total) : fmt(data.value)}
+          </span>
+        </button>
+        {data.improved && (
+          <span
+            onClick={() =>
+              setTooltip(tooltip?.from === label ? null : { from: label, text: data.note })
+            }
+            className="absolute -top-2 -right-2 text-emerald-400 cursor-pointer text-lg"
+          >
+            Λ
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-black text-gray-200 p-4 sm:p-6">
@@ -130,6 +154,7 @@ export default function CharacterSheetPage() {
               return (
                 <button
                   key={tab.id}
+                  type="button"
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-sm sm:text-base font-medium rounded-t-lg transition-all flex-shrink-0 ${
                     isActive
@@ -183,7 +208,7 @@ export default function CharacterSheetPage() {
                   min={0}
                   max={characterData.hp}
                   value={effectiveHp}
-                  onChange={(e) => setPendingHp(parseInt(e.target.value))}
+                  onChange={(e) => setPendingHp(parseInt(e.target.value, 10))}
                   className="w-full h-3 rounded-lg appearance-none cursor-pointer"
                   style={{
                     background: `linear-gradient(
@@ -205,6 +230,7 @@ export default function CharacterSheetPage() {
                   </span>
                   {pendingHp !== null && (
                     <button
+                      type="button"
                       onClick={applyChange}
                       className="ml-4 px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-600 text-sm font-medium"
                     >
@@ -235,6 +261,7 @@ export default function CharacterSheetPage() {
                   data={characterData.saves.will}
                 />
                 <button
+                  type="button"
                   onClick={() =>
                     rollCheck(
                       "initiative",
@@ -244,26 +271,34 @@ export default function CharacterSheetPage() {
                     )
                   }
                   className={`p-3 rounded border text-center transition-all ${
-                    initiativeResult !== null
-                      ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                    initiativeResult
+                      ? initiativeResult.d20 === 1
+                        ? "bg-red-900/60 border-red-400 shadow-[0_0_20px_rgba(239,68,68,0.8)]"
+                        : "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
                       : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
                   }`}
                 >
                   <span className="block text-xs text-gray-400">Init</span>
-                  <span className="text-lg font-semibold text-emerald-300">
-                    {initiativeResult ?? characterData.initiative}
+                  <span
+                    className={`text-lg font-semibold ${
+                      initiativeResult?.d20 === 1 ? "text-red-300" : "text-emerald-300"
+                    }`}
+                  >
+                    {initiativeResult ? fmt(initiativeResult.total) : fmt(characterData.initiative)}
                   </span>
                 </button>
               </div>
 
               {tooltip && (
                 <div className="mt-4 p-3 rounded bg-gray-800/90 border border-emerald-500 text-sm text-emerald-200 shadow-lg">
-                  {tooltip}
+                  {tooltip.text}
                 </div>
               )}
 
               {lastRoll && (
-                <div className="mt-4 text-sm text-gray-400">{lastRoll}</div>
+                <div className="mt-4 text-sm text-gray-400" aria-live="polite">
+                  {lastRoll}
+                </div>
               )}
             </div>
           )}
