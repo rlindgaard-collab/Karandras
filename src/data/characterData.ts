@@ -33,8 +33,8 @@ export const characterData = {
   speed: 50,
   // Attack modifiers til Attack 1, 2 og 3+
   attacks: {
-    1: 32, // første angreb
-    2: 27, // andet angreb (MAP)
+    1: 26, // første angreb
+    2: 24, // andet angreb (MAP)
     3: 22, // tredje+ angreb (MAP)
   },
   weapons: [
