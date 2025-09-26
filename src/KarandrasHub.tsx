@@ -59,8 +59,8 @@ function InfoCard({ id }: { id: NodeId }) {
           {/* Saves nederst */}
           <div className="text-sm">
             <span className="font-semibold text-emerald-400">Saves:</span>{" "}
-            Fort {characterData.saves.fort} | Ref {characterData.saves.ref} | Will{" "}
-            {characterData.saves.will}
+            Fort {characterData.saves.fort.value} | Ref {characterData.saves.ref.value} | Will{" "}
+            {characterData.saves.will.value}
           </div>
         </CardContent>
       </Card>
