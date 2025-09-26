@@ -16,6 +16,14 @@ export const characterData = {
     fort: 24,
     ref: 24,
     will: 22,
+    improved: {
+      fort: { active: false, note: "" },
+      ref: { active: false, note: "" },
+      will: {
+        active: true,
+        note: "Improved Will Save: On a success, treat as a critical success.",
+      },
+    },
   },
   initiative: 26,
   speed: 50,
@@ -26,11 +34,7 @@ export const characterData = {
       notes: "A pair of lean, serrated blades...",
     },
   ],
-  gear: [
-    "Shadow-weave Armor",
-    "Mask of the Mantis",
-    "Boots of Bounding",
-  ],
+  gear: ["Shadow-weave Armor", "Mask of the Mantis", "Boots of Bounding"],
   story: "Few have seen Karandras move—fewer still knew they were watched...",
   storyChapters: [
     {
