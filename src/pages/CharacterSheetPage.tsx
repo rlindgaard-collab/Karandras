@@ -36,6 +36,18 @@ export default function CharacterSheetPage() {
   // Tooltip state
   const [tooltip, setTooltip] = useState<{ from: "fort" | "ref" | "will"; text: string } | null>(null);
 
+  // Attack state
+  const [attackCount, setAttackCount] = useState(1);
+  const [attackResult, setAttackResult] = useState<RollResult | null>(null);
+  const [attackLog, setAttackLog] = useState<string>("");
+
+  // Manuelle modifiers til Attack 1, 2, 3+
+  const attackModifiers = {
+    1: +10,
+    2: +5,
+    3: 0,
+  };
+
   useEffect(() => {
     localStorage.setItem("currentHp", currentHp.toString());
   }, [currentHp]);
@@ -70,6 +82,30 @@ export default function CharacterSheetPage() {
     setLastRoll(
       `${type.charAt(0).toUpperCase() + type.slice(1)}: ${d20} (d20) + ${modifier} (modifier) = ${total}`
     );
+  };
+
+  // Roll Attack
+  const rollAttack = () => {
+    if (attackResult) {
+      // Nulstil knappen og gå videre til næste attack
+      setAttackResult(null);
+      setAttackCount((prev) => prev + 1);
+      return;
+    }
+
+    const step = attackCount > 3 ? 3 : attackCount;
+    const modifier = attackModifiers[step as 1 | 2 | 3];
+    const d20 = Math.floor(Math.random() * 20) + 1;
+    const total = d20 + modifier;
+
+    setAttackResult({ d20, total });
+    setAttackLog(`Attack ${attackCount}: ${d20} (d20) + ${modifier} (modifier) = ${total}`);
+  };
+
+  const resetAttack = () => {
+    setAttackCount(1);
+    setAttackResult(null);
+    setAttackLog("");
   };
 
   // Save button
@@ -285,6 +321,46 @@ export default function CharacterSheetPage() {
                   </span>
                 </button>
               </div>
+
+              {/* Attack Knapsystem */}
+              <div className="mt-6 flex gap-2 items-start">
+                <button
+                  type="button"
+                  onClick={rollAttack}
+                  className={`flex-1 p-3 rounded border text-center transition-all ${
+                    attackResult
+                      ? attackResult.d20 === 1
+                        ? "bg-red-900/60 border-red-400 shadow-[0_0_20px_rgba(239,68,68,0.8)]"
+                        : "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                      : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
+                  }`}
+                >
+                  <span className="block text-xs text-gray-400">Attack {attackCount}</span>
+                  <span
+                    className={`text-lg font-semibold ${
+                      attackResult?.d20 === 1 ? "text-red-300" : "text-emerald-300"
+                    }`}
+                  >
+                    {attackResult
+                      ? attackResult.total
+                      : (() => {
+                          const step = attackCount > 3 ? 3 : attackCount;
+                          return attackModifiers[step as 1 | 2 | 3];
+                        })()}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={resetAttack}
+                  className="px-3 py-2 rounded bg-gray-700 hover:bg-gray-600 border border-gray-500 text-sm font-medium"
+                >
+                  Reset
+                </button>
+              </div>
+
+              {attackLog && (
+                <div className="mt-2 text-sm text-gray-400">{attackLog}</div>
+              )}
 
               {tooltip && (
                 <div className="mt-4 p-3 rounded bg-gray-800/90 border border-emerald-500 text-sm text-emerald-200 shadow-lg">
