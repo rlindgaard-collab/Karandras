@@ -34,11 +34,12 @@ export const characterData = {
   // Attack modifiers til Attack 1, 2 og 3+
   attacks: {
     1: { toHit: 26, damageBonus: 11 }, // første angreb
-    2: { toHit: 24, damageBonus: 14 },  // andet angreb (MAP)
-    3: { toHit: 22, damageBonus: 14 },  // tredje+ angreb (MAP)
+    2: { toHit: 24, damageBonus: 14 }, // andet angreb (MAP)
+    3: { toHit: 22, damageBonus: 14 }, // tredje+ angreb (MAP)
   },
   // Damage opsætning
   damage: {
+    type: "Cold Iron", // overordnet damage type
     dice: [
       { count: 3, die: 6, type: "Slashing" },
       { count: 1, die: 6, type: "Mental" },
