@@ -54,9 +54,9 @@ export default function StatsPage() {
               <p>
                 <span className="text-emerald-400 font-medium">Saves:</span>
               </p>
-              <p>Fort: {characterData.saves.fort}</p>
-              <p>Ref: {characterData.saves.ref}</p>
-              <p>Will: {characterData.saves.will}</p>
+              <p>Fort: {characterData.saves.fort.value}</p>
+              <p>Ref: {characterData.saves.ref.value}</p>
+              <p>Will: {characterData.saves.will.value}</p>
             </div>
           </div>
         </CardContent>
