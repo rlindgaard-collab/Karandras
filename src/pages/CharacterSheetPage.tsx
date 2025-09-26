@@ -399,6 +399,10 @@ export default function CharacterSheetPage() {
                     <span className="text-2xl font-bold text-emerald-300">
                       {damageResult}
                     </span>
+                    {/* Viser overordnet damage type */}
+                    <span className="block text-xs text-gray-400 mt-1">
+                      Type: {characterData.damage.type}
+                    </span>
                   </div>
 
                   {/* Breakdown */}
