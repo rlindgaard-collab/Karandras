@@ -16,21 +16,21 @@ type TabId = typeof tabs[number]["id"];
 export default function CharacterSheetPage() {
   const [activeTab, setActiveTab] = useState<TabId>("battle");
 
-  // HP state med localStorage
+  // HP state
   const [currentHp, setCurrentHp] = useState<number>(() => {
     const saved = localStorage.getItem("currentHp");
     return saved ? parseInt(saved) : characterData.hp;
   });
   const [pendingHp, setPendingHp] = useState<number | null>(null);
 
-  // Saves state
+  // Saves & Initiative
   const [fortResult, setFortResult] = useState<number | null>(null);
   const [refResult, setRefResult] = useState<number | null>(null);
   const [willResult, setWillResult] = useState<number | null>(null);
   const [initiativeResult, setInitiativeResult] = useState<number | null>(null);
   const [lastRoll, setLastRoll] = useState<string>("");
 
-  // Tooltip state til improved saves
+  // Tooltip state for improved saves
   const [tooltip, setTooltip] = useState<string | null>(null);
 
   useEffect(() => {
@@ -67,10 +67,50 @@ export default function CharacterSheetPage() {
     );
   };
 
+  // Helper: Save button with optional Λ
+  const SaveButton = ({
+    label,
+    result,
+    setResult,
+    data,
+  }: {
+    label: "fort" | "ref" | "will";
+    result: number | null;
+    setResult: React.Dispatch<React.SetStateAction<number | null>>;
+    data: { value: number; improved: boolean; note: string };
+  }) => (
+    <div className="relative">
+      <button
+        onClick={() => rollCheck(label, result, setResult, data.value)}
+        className={`w-full p-3 rounded border text-center transition-all ${
+          result !== null
+            ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+            : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
+        }`}
+      >
+        <span className="block text-xs text-gray-400">
+          {label.charAt(0).toUpperCase() + label.slice(1)}
+        </span>
+        <span className="text-lg font-semibold text-emerald-300">
+          {result ?? data.value}
+        </span>
+      </button>
+      {data.improved && (
+        <span
+          onClick={() =>
+            setTooltip(tooltip === data.note ? null : data.note)
+          }
+          className="absolute -top-2 -right-2 text-emerald-400 cursor-pointer text-lg"
+        >
+          Λ
+        </span>
+      )}
+    </div>
+  );
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-black text-gray-200 p-4 sm:p-6">
       <Card className="w-full max-w-4xl border-emerald-900/40 bg-gray-900/90 backdrop-blur rounded-xl shadow-lg">
-        {/* Header */}
         <CardHeader>
           <div className="flex justify-between items-center flex-wrap gap-2">
             <CardTitle className="flex items-center gap-2 text-emerald-400 text-lg sm:text-xl">
@@ -83,8 +123,6 @@ export default function CharacterSheetPage() {
               ← Back
             </Link>
           </div>
-
-          {/* Tabs */}
           <div className="mt-4 flex gap-2 border-b border-gray-700 overflow-x-auto scrollbar-hide">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -106,9 +144,7 @@ export default function CharacterSheetPage() {
           </div>
         </CardHeader>
 
-        {/* Content */}
         <CardContent className="min-h-[300px] sm:min-h-[400px] text-gray-300 text-sm sm:text-base leading-relaxed space-y-6">
-          {/* BATTLE TAB */}
           {activeTab === "battle" && (
             <div>
               <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-4">
@@ -131,8 +167,6 @@ export default function CharacterSheetPage() {
                 <label className="block text-sm text-gray-400 mb-2">
                   Hit Points
                 </label>
-
-                {/* Diff tal over slider */}
                 {diff !== 0 && (
                   <div
                     className={`absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-bold transition-all duration-300 animate-pulse ${
@@ -144,7 +178,6 @@ export default function CharacterSheetPage() {
                     {diff > 0 ? `+${diff}` : diff}
                   </div>
                 )}
-
                 <input
                   type="range"
                   min={0}
@@ -152,6 +185,19 @@ export default function CharacterSheetPage() {
                   value={effectiveHp}
                   onChange={(e) => setPendingHp(parseInt(e.target.value))}
                   className="w-full h-3 rounded-lg appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(
+                      to right,
+                      ${
+                        diff > 0
+                          ? "rgba(16,185,129,0.7)"
+                          : diff < 0
+                          ? "rgba(239,68,68,0.7)"
+                          : "rgba(16,185,129,0.5)"
+                      } ${(effectiveHp / characterData.hp) * 100}%,
+                      rgba(31,41,55,0.8) ${(effectiveHp / characterData.hp) * 100}%
+                    )`,
+                  }}
                 />
                 <div className="flex justify-between items-center mt-2 text-sm">
                   <span>
@@ -170,121 +216,24 @@ export default function CharacterSheetPage() {
 
               {/* Saves + Initiative */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {/* Fort Save */}
-                <div className="relative">
-                  <button
-                    onClick={() =>
-                      rollCheck(
-                        "fort",
-                        fortResult,
-                        setFortResult,
-                        characterData.saves.fort.value
-                      )
-                    }
-                    className={`w-full p-3 rounded border text-center transition-all ${
-                      fortResult !== null
-                        ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
-                        : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
-                    }`}
-                  >
-                    <span className="block text-xs text-gray-400">Fort</span>
-                    <span className="text-lg font-semibold text-emerald-300">
-                      {fortResult ?? characterData.saves.fort.value}
-                    </span>
-                  </button>
-                  {characterData.saves.fort.improved && (
-                    <span
-                      onClick={() =>
-                        setTooltip(
-                          tooltip === characterData.saves.fort.note
-                            ? null
-                            : characterData.saves.fort.note
-                        )
-                      }
-                      className="absolute -top-2 -right-2 text-emerald-400 cursor-pointer text-lg"
-                    >
-                      Λ
-                    </span>
-                  )}
-                </div>
-
-                {/* Ref Save */}
-                <div className="relative">
-                  <button
-                    onClick={() =>
-                      rollCheck(
-                        "ref",
-                        refResult,
-                        setRefResult,
-                        characterData.saves.ref.value
-                      )
-                    }
-                    className={`w-full p-3 rounded border text-center transition-all ${
-                      refResult !== null
-                        ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
-                        : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
-                    }`}
-                  >
-                    <span className="block text-xs text-gray-400">Ref</span>
-                    <span className="text-lg font-semibold text-emerald-300">
-                      {refResult ?? characterData.saves.ref.value}
-                    </span>
-                  </button>
-                  {characterData.saves.ref.improved && (
-                    <span
-                      onClick={() =>
-                        setTooltip(
-                          tooltip === characterData.saves.ref.note
-                            ? null
-                            : characterData.saves.ref.note
-                        )
-                      }
-                      className="absolute -top-2 -right-2 text-emerald-400 cursor-pointer text-lg"
-                    >
-                      Λ
-                    </span>
-                  )}
-                </div>
-
-                {/* Will Save */}
-                <div className="relative">
-                  <button
-                    onClick={() =>
-                      rollCheck(
-                        "will",
-                        willResult,
-                        setWillResult,
-                        characterData.saves.will.value
-                      )
-                    }
-                    className={`w-full p-3 rounded border text-center transition-all ${
-                      willResult !== null
-                        ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
-                        : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
-                    }`}
-                  >
-                    <span className="block text-xs text-gray-400">Will</span>
-                    <span className="text-lg font-semibold text-emerald-300">
-                      {willResult ?? characterData.saves.will.value}
-                    </span>
-                  </button>
-                  {characterData.saves.will.improved && (
-                    <span
-                      onClick={() =>
-                        setTooltip(
-                          tooltip === characterData.saves.will.note
-                            ? null
-                            : characterData.saves.will.note
-                        )
-                      }
-                      className="absolute -top-2 -right-2 text-emerald-400 cursor-pointer text-lg"
-                    >
-                      Λ
-                    </span>
-                  )}
-                </div>
-
-                {/* Initiative */}
+                <SaveButton
+                  label="fort"
+                  result={fortResult}
+                  setResult={setFortResult}
+                  data={characterData.saves.fort}
+                />
+                <SaveButton
+                  label="ref"
+                  result={refResult}
+                  setResult={setRefResult}
+                  data={characterData.saves.ref}
+                />
+                <SaveButton
+                  label="will"
+                  result={willResult}
+                  setResult={setWillResult}
+                  data={characterData.saves.will}
+                />
                 <button
                   onClick={() =>
                     rollCheck(
@@ -307,51 +256,15 @@ export default function CharacterSheetPage() {
                 </button>
               </div>
 
-              {/* Tooltip box */}
               {tooltip && (
                 <div className="mt-4 p-3 rounded bg-gray-800/90 border border-emerald-500 text-sm text-emerald-200 shadow-lg">
                   {tooltip}
                 </div>
               )}
 
-              {/* Roll details */}
               {lastRoll && (
                 <div className="mt-4 text-sm text-gray-400">{lastRoll}</div>
               )}
-            </div>
-          )}
-
-          {/* SKILLS TAB */}
-          {activeTab === "skills" && (
-            <div>
-              <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-3">
-                Skills
-              </h2>
-              <p>Her kan vi vise færdigheder, modifiers og lign.</p>
-            </div>
-          )}
-
-          {/* GEAR TAB */}
-          {activeTab === "gear" && (
-            <div>
-              <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-3">
-                Gear
-              </h2>
-              <ul className="list-disc list-inside space-y-1">
-                {characterData.gear.map((g, i) => (
-                  <li key={i}>{g}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* NOTES TAB */}
-          {activeTab === "notes" && (
-            <div>
-              <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-3">
-                Notes
-              </h2>
-              <p>Her kan du skrive kampagnenotater eller ting du vil huske.</p>
             </div>
           )}
         </CardContent>
