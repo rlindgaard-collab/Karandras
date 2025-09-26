@@ -25,9 +25,7 @@ I screamed, but it was as if the scream never left me. Memories, centuries of ba
 I rose.
 Not because I could, but because we could. The sabers fit in my hands, and the demon before me faltered, as if it knew the legacy better than I did. I struck. Not with my strength alone, but with ours. And in its shriek, I heard how something ancient had been reborn in my blood.
 
-When the battle was over and the demon lay broken at my feet, I knew I would never be alone again.
-I was no longer the boy from Xer.
-I was Karandras.`,
+When the battle was over and the demon lay broken at my feet, I knew I would never be alone again.`,
     ],
   },
   {
