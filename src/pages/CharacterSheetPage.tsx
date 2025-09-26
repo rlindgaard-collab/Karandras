@@ -30,6 +30,9 @@ export default function CharacterSheetPage() {
   const [initiativeResult, setInitiativeResult] = useState<number | null>(null);
   const [lastRoll, setLastRoll] = useState<string>("");
 
+  // Tooltip state til improved saves
+  const [tooltip, setTooltip] = useState<string | null>(null);
+
   useEffect(() => {
     localStorage.setItem("currentHp", currentHp.toString());
   }, [currentHp]);
@@ -51,7 +54,6 @@ export default function CharacterSheetPage() {
     modifier: number
   ) => {
     if (current !== null) {
-      // Reset
       setResult(null);
       setLastRoll("");
       return;
@@ -124,7 +126,7 @@ export default function CharacterSheetPage() {
                 </span>
               </div>
 
-              {/* HP Slider (med diff over) */}
+              {/* HP Slider */}
               <div className="mb-6 relative">
                 <label className="block text-sm text-gray-400 mb-2">
                   Hit Points
@@ -150,19 +152,6 @@ export default function CharacterSheetPage() {
                   value={effectiveHp}
                   onChange={(e) => setPendingHp(parseInt(e.target.value))}
                   className="w-full h-3 rounded-lg appearance-none cursor-pointer"
-                  style={{
-                    background: `linear-gradient(
-                      to right,
-                      ${
-                        diff > 0
-                          ? "rgba(16,185,129,0.7)"
-                          : diff < 0
-                          ? "rgba(239,68,68,0.7)"
-                          : "rgba(16,185,129,0.5)"
-                      } ${(effectiveHp / characterData.hp) * 100}%,
-                      rgba(31,41,55,0.8) ${(effectiveHp / characterData.hp) * 100}%
-                    )`,
-                  }}
                 />
                 <div className="flex justify-between items-center mt-2 text-sm">
                   <span>
@@ -182,90 +171,128 @@ export default function CharacterSheetPage() {
               {/* Saves + Initiative */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {/* Fort Save */}
-                <button
-                  onClick={() =>
-                    rollCheck("fort", fortResult, setFortResult, characterData.saves.fort.value)
-                  }
-                  className={`p-3 rounded border text-center transition-all ${
-                    fortResult !== null
-                      ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
-                      : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
-                  }`}
-                >
-                  <span className="flex items-center justify-center gap-1 text-xs text-gray-400">
-                    Fort
-                    {characterData.saves.fort.improved.active && (
-                      <span
-                        className="text-emerald-400 font-bold cursor-pointer"
-                        title={characterData.saves.fort.improved.note}
-                      >
-                        Λ
-                      </span>
-                    )}
-                  </span>
-                  <span className="text-lg font-semibold text-emerald-300">
-                    {fortResult ?? characterData.saves.fort.value}
-                  </span>
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={() =>
+                      rollCheck(
+                        "fort",
+                        fortResult,
+                        setFortResult,
+                        characterData.saves.fort.value
+                      )
+                    }
+                    className={`w-full p-3 rounded border text-center transition-all ${
+                      fortResult !== null
+                        ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                        : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
+                    }`}
+                  >
+                    <span className="block text-xs text-gray-400">Fort</span>
+                    <span className="text-lg font-semibold text-emerald-300">
+                      {fortResult ?? characterData.saves.fort.value}
+                    </span>
+                  </button>
+                  {characterData.saves.fort.improved && (
+                    <span
+                      onClick={() =>
+                        setTooltip(
+                          tooltip === characterData.saves.fort.note
+                            ? null
+                            : characterData.saves.fort.note
+                        )
+                      }
+                      className="absolute -top-2 -right-2 text-emerald-400 cursor-pointer text-lg"
+                    >
+                      Λ
+                    </span>
+                  )}
+                </div>
 
                 {/* Ref Save */}
-                <button
-                  onClick={() =>
-                    rollCheck("ref", refResult, setRefResult, characterData.saves.ref.value)
-                  }
-                  className={`p-3 rounded border text-center transition-all ${
-                    refResult !== null
-                      ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
-                      : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
-                  }`}
-                >
-                  <span className="flex items-center justify-center gap-1 text-xs text-gray-400">
-                    Ref
-                    {characterData.saves.ref.improved.active && (
-                      <span
-                        className="text-emerald-400 font-bold cursor-pointer"
-                        title={characterData.saves.ref.improved.note}
-                      >
-                        Λ
-                      </span>
-                    )}
-                  </span>
-                  <span className="text-lg font-semibold text-emerald-300">
-                    {refResult ?? characterData.saves.ref.value}
-                  </span>
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={() =>
+                      rollCheck(
+                        "ref",
+                        refResult,
+                        setRefResult,
+                        characterData.saves.ref.value
+                      )
+                    }
+                    className={`w-full p-3 rounded border text-center transition-all ${
+                      refResult !== null
+                        ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                        : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
+                    }`}
+                  >
+                    <span className="block text-xs text-gray-400">Ref</span>
+                    <span className="text-lg font-semibold text-emerald-300">
+                      {refResult ?? characterData.saves.ref.value}
+                    </span>
+                  </button>
+                  {characterData.saves.ref.improved && (
+                    <span
+                      onClick={() =>
+                        setTooltip(
+                          tooltip === characterData.saves.ref.note
+                            ? null
+                            : characterData.saves.ref.note
+                        )
+                      }
+                      className="absolute -top-2 -right-2 text-emerald-400 cursor-pointer text-lg"
+                    >
+                      Λ
+                    </span>
+                  )}
+                </div>
 
                 {/* Will Save */}
-                <button
-                  onClick={() =>
-                    rollCheck("will", willResult, setWillResult, characterData.saves.will.value)
-                  }
-                  className={`p-3 rounded border text-center transition-all ${
-                    willResult !== null
-                      ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
-                      : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
-                  }`}
-                >
-                  <span className="flex items-center justify-center gap-1 text-xs text-gray-400">
-                    Will
-                    {characterData.saves.will.improved.active && (
-                      <span
-                        className="text-emerald-400 font-bold cursor-pointer"
-                        title={characterData.saves.will.improved.note}
-                      >
-                        Λ
-                      </span>
-                    )}
-                  </span>
-                  <span className="text-lg font-semibold text-emerald-300">
-                    {willResult ?? characterData.saves.will.value}
-                  </span>
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={() =>
+                      rollCheck(
+                        "will",
+                        willResult,
+                        setWillResult,
+                        characterData.saves.will.value
+                      )
+                    }
+                    className={`w-full p-3 rounded border text-center transition-all ${
+                      willResult !== null
+                        ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                        : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
+                    }`}
+                  >
+                    <span className="block text-xs text-gray-400">Will</span>
+                    <span className="text-lg font-semibold text-emerald-300">
+                      {willResult ?? characterData.saves.will.value}
+                    </span>
+                  </button>
+                  {characterData.saves.will.improved && (
+                    <span
+                      onClick={() =>
+                        setTooltip(
+                          tooltip === characterData.saves.will.note
+                            ? null
+                            : characterData.saves.will.note
+                        )
+                      }
+                      className="absolute -top-2 -right-2 text-emerald-400 cursor-pointer text-lg"
+                    >
+                      Λ
+                    </span>
+                  )}
+                </div>
 
                 {/* Initiative */}
                 <button
                   onClick={() =>
-                    rollCheck("initiative", initiativeResult, setInitiativeResult, characterData.initiative)
+                    rollCheck(
+                      "initiative",
+                      initiativeResult,
+                      setInitiativeResult,
+                      characterData.initiative
+                    )
                   }
                   className={`p-3 rounded border text-center transition-all ${
                     initiativeResult !== null
@@ -279,6 +306,13 @@ export default function CharacterSheetPage() {
                   </span>
                 </button>
               </div>
+
+              {/* Tooltip box */}
+              {tooltip && (
+                <div className="mt-4 p-3 rounded bg-gray-800/90 border border-emerald-500 text-sm text-emerald-200 shadow-lg">
+                  {tooltip}
+                </div>
+              )}
 
               {/* Roll details */}
               {lastRoll && (
