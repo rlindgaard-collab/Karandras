@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/Card";
-import { Swords, ListChecks, Backpack, StickyNote } from "lucide-react";
+import { Swords, ListChecks, Backpack, StickyNote, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { characterData } from "../data/characterData";
 
@@ -314,11 +314,11 @@ export default function CharacterSheetPage() {
               </div>
 
               {/* Attack Knapsystem */}
-              <div className="mt-6 flex gap-2 items-start">
+              <div className="relative mt-6">
                 <button
                   type="button"
                   onClick={rollAttack}
-                  className={`flex-1 p-3 rounded border text-center transition-all ${
+                  className={`w-full p-3 rounded border text-center transition-all ${
                     attackResult
                       ? attackResult.d20 === 1
                         ? "bg-red-900/60 border-red-400 shadow-[0_0_20px_rgba(239,68,68,0.8)]"
@@ -341,12 +341,15 @@ export default function CharacterSheetPage() {
                         })()}
                   </span>
                 </button>
+
+                {/* Reset ikon */}
                 <button
                   type="button"
                   onClick={resetAttack}
-                  className="px-3 py-2 rounded bg-gray-700 hover:bg-gray-600 border border-gray-500 text-sm font-medium"
+                  className="absolute top-2 right-2 p-1 rounded-full bg-gray-700 hover:bg-gray-600 border border-gray-500"
+                  title="Reset attacks"
                 >
-                  Reset
+                  <RotateCcw className="w-4 h-4 text-gray-300" />
                 </button>
               </div>
 
