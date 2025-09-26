@@ -33,9 +33,17 @@ export const characterData = {
   speed: 50,
   // Attack modifiers til Attack 1, 2 og 3+
   attacks: {
-    1: 26, // første angreb
-    2: 24, // andet angreb (MAP)
-    3: 22, // tredje+ angreb (MAP)
+    1: { toHit: 26, damageBonus: 10 }, // første angreb
+    2: { toHit: 24, damageBonus: 8 },  // andet angreb (MAP)
+    3: { toHit: 22, damageBonus: 6 },  // tredje+ angreb (MAP)
+  },
+  // Damage opsætning
+  damage: {
+    dice: [
+      { count: 2, die: 6, type: "Slashing" },
+      { count: 1, die: 6, type: "Mental" },
+      { count: 1, die: 6, type: "Spirit" },
+    ],
   },
   weapons: [
     {
