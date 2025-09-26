@@ -30,9 +30,6 @@ export default function CharacterSheetPage() {
   const [initiativeResult, setInitiativeResult] = useState<number | null>(null);
   const [lastRoll, setLastRoll] = useState<string>("");
 
-  // Improved save notes toggle
-  const [activeNote, setActiveNote] = useState<string | null>(null);
-
   useEffect(() => {
     localStorage.setItem("currentHp", currentHp.toString());
   }, [currentHp]);
@@ -54,6 +51,7 @@ export default function CharacterSheetPage() {
     modifier: number
   ) => {
     if (current !== null) {
+      // Reset
       setResult(null);
       setLastRoll("");
       return;
@@ -64,54 +62,6 @@ export default function CharacterSheetPage() {
     setResult(total);
     setLastRoll(
       `${type.charAt(0).toUpperCase() + type.slice(1)}: ${d20} (d20) + ${modifier} (modifier) = ${total}`
-    );
-  };
-
-  // Helper til at tegne save knap
-  const renderSaveButton = (
-    id: "fort" | "ref" | "will",
-    result: number | null,
-    setResult: React.Dispatch<React.SetStateAction<number | null>>,
-    label: string
-  ) => {
-    const save = characterData.saves[id];
-    const improved = save.improved;
-    const value = save.value;
-
-    return (
-      <div className="relative flex flex-col items-center">
-        <button
-          onClick={() => rollCheck(id, result, setResult, value)}
-          className={`p-3 rounded border text-center transition-all w-full ${
-            result !== null
-              ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
-              : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
-          }`}
-        >
-          <span className="block text-xs text-gray-400">{label}</span>
-          <span className="text-lg font-semibold text-emerald-300">
-            {result ?? value}
-          </span>
-        </button>
-
-        {improved?.active && (
-          <button
-            onClick={() =>
-              setActiveNote(activeNote === id ? null : id)
-            }
-            className="absolute -top-2 -right-2 text-emerald-500 hover:text-emerald-300 text-lg font-bold"
-            title="Improved Save"
-          >
-            Λ
-          </button>
-        )}
-
-        {activeNote === id && improved?.note && (
-          <div className="mt-2 p-2 text-xs text-gray-200 bg-gray-800 border border-emerald-700 rounded shadow-lg">
-            {improved.note}
-          </div>
-        )}
-      </div>
     );
   };
 
@@ -174,7 +124,7 @@ export default function CharacterSheetPage() {
                 </span>
               </div>
 
-              {/* HP Slider */}
+              {/* HP Slider (med diff over) */}
               <div className="mb-6 relative">
                 <label className="block text-sm text-gray-400 mb-2">
                   Hit Points
@@ -231,19 +181,61 @@ export default function CharacterSheetPage() {
 
               {/* Saves + Initiative */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {renderSaveButton("fort", fortResult, setFortResult, "Fort")}
-                {renderSaveButton("ref", refResult, setRefResult, "Ref")}
-                {renderSaveButton("will", willResult, setWillResult, "Will")}
+                {/* Fort Save */}
+                <button
+                  onClick={() =>
+                    rollCheck("fort", fortResult, setFortResult, characterData.saves.fort.value)
+                  }
+                  className={`p-3 rounded border text-center transition-all ${
+                    fortResult !== null
+                      ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                      : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
+                  }`}
+                >
+                  <span className="block text-xs text-gray-400">Fort</span>
+                  <span className="text-lg font-semibold text-emerald-300">
+                    {fortResult ?? characterData.saves.fort.value}
+                  </span>
+                </button>
+
+                {/* Ref Save */}
+                <button
+                  onClick={() =>
+                    rollCheck("ref", refResult, setRefResult, characterData.saves.ref.value)
+                  }
+                  className={`p-3 rounded border text-center transition-all ${
+                    refResult !== null
+                      ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                      : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
+                  }`}
+                >
+                  <span className="block text-xs text-gray-400">Ref</span>
+                  <span className="text-lg font-semibold text-emerald-300">
+                    {refResult ?? characterData.saves.ref.value}
+                  </span>
+                </button>
+
+                {/* Will Save */}
+                <button
+                  onClick={() =>
+                    rollCheck("will", willResult, setWillResult, characterData.saves.will.value)
+                  }
+                  className={`p-3 rounded border text-center transition-all ${
+                    willResult !== null
+                      ? "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                      : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
+                  }`}
+                >
+                  <span className="block text-xs text-gray-400">Will</span>
+                  <span className="text-lg font-semibold text-emerald-300">
+                    {willResult ?? characterData.saves.will.value}
+                  </span>
+                </button>
 
                 {/* Initiative */}
                 <button
                   onClick={() =>
-                    rollCheck(
-                      "initiative",
-                      initiativeResult,
-                      setInitiativeResult,
-                      characterData.initiative
-                    )
+                    rollCheck("initiative", initiativeResult, setInitiativeResult, characterData.initiative)
                   }
                   className={`p-3 rounded border text-center transition-all ${
                     initiativeResult !== null
