@@ -13,16 +13,12 @@ export const characterData = {
   ac: 34,
   hp: 203,
   saves: {
-    fort: 24,
-    ref: 24,
-    will: 22,
-    improved: {
-      fort: { active: false, note: "" },
-      ref: { active: false, note: "" },
-      will: {
-        active: true,
-        note: "Improved Will Save: On a success, treat as a critical success.",
-      },
+    fort: { value: 24, improved: false, note: "" },
+    ref: { value: 24, improved: false, note: "" },
+    will: {
+      value: 22,
+      improved: true,
+      note: "Improved Will Save: On a success, treat as a critical success.",
     },
   },
   initiative: 26,
