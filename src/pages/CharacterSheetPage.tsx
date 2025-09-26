@@ -12,8 +12,6 @@ const tabs = [
 ] as const;
 
 type TabId = typeof tabs[number]["id"];
-
-// Typen for rul-resultater
 type RollResult = { d20: number; total: number };
 
 export default function CharacterSheetPage() {
@@ -41,13 +39,6 @@ export default function CharacterSheetPage() {
   const [attackResult, setAttackResult] = useState<RollResult | null>(null);
   const [attackLog, setAttackLog] = useState<string>("");
 
-  // Manuelle modifiers til Attack 1, 2, 3+
-  const attackModifiers = {
-    1: +10,
-    2: +5,
-    3: 0,
-  };
-
   useEffect(() => {
     localStorage.setItem("currentHp", currentHp.toString());
   }, [currentHp]);
@@ -62,7 +53,7 @@ export default function CharacterSheetPage() {
   const effectiveHp = pendingHp !== null ? pendingHp : currentHp;
   const diff = pendingHp !== null ? pendingHp - currentHp : 0;
 
-  // Roll funktion
+  // Generel rul-funktion
   const rollCheck = (
     type: "fort" | "ref" | "will" | "initiative",
     current: RollResult | null,
@@ -70,7 +61,6 @@ export default function CharacterSheetPage() {
     modifier: number
   ) => {
     if (current !== null) {
-      // reset når man trykker igen
       setResult(null);
       setLastRoll("");
       return;
@@ -84,17 +74,16 @@ export default function CharacterSheetPage() {
     );
   };
 
-  // Roll Attack
+  // Attack rul
   const rollAttack = () => {
     if (attackResult) {
-      // Nulstil knappen og gå videre til næste attack
       setAttackResult(null);
       setAttackCount((prev) => prev + 1);
       return;
     }
 
     const step = attackCount > 3 ? 3 : attackCount;
-    const modifier = attackModifiers[step as 1 | 2 | 3];
+    const modifier = characterData.attacks[step as 1 | 2 | 3];
     const d20 = Math.floor(Math.random() * 20) + 1;
     const total = d20 + modifier;
 
@@ -345,7 +334,7 @@ export default function CharacterSheetPage() {
                       ? attackResult.total
                       : (() => {
                           const step = attackCount > 3 ? 3 : attackCount;
-                          return attackModifiers[step as 1 | 2 | 3];
+                          return characterData.attacks[step as 1 | 2 | 3];
                         })()}
                   </span>
                 </button>
