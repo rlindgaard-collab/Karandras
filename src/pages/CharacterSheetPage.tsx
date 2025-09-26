@@ -41,6 +41,10 @@ export default function CharacterSheetPage() {
   const [attackResult, setAttackResult] = useState<RollResult | null>(null);
   const [attackLog, setAttackLog] = useState<string>("");
 
+  // Damage state
+  const [damageResult, setDamageResult] = useState<number | null>(null);
+  const [damageBreakdown, setDamageBreakdown] = useState<string>("");
+
   useEffect(() => {
     localStorage.setItem("currentHp", currentHp.toString());
   }, [currentHp]);
@@ -76,27 +80,55 @@ export default function CharacterSheetPage() {
     );
   };
 
+  // Damage rul
+  const rollDamage = (damageBonus: number) => {
+    const { dice } = characterData.damage;
+    let total = damageBonus;
+    let parts: string[] = [];
+
+    dice.forEach((d) => {
+      let rolls: number[] = [];
+      for (let i = 0; i < d.count; i++) {
+        const roll = Math.floor(Math.random() * d.die) + 1;
+        rolls.push(roll);
+        total += roll;
+      }
+      parts.push(`${d.count}d${d.die} (${d.type}): [${rolls.join(", ")}]`);
+    });
+
+    parts.push(`Damage Bonus: +${damageBonus}`);
+    setDamageResult(total);
+    setDamageBreakdown(parts.join(" + "));
+  };
+
   // Attack rul
   const rollAttack = () => {
     if (attackResult) {
       setAttackResult(null);
       setAttackCount((prev) => prev + 1);
+      setDamageResult(null);
+      setDamageBreakdown("");
       return;
     }
 
     const step = attackCount > 3 ? 3 : attackCount;
-    const modifier = characterData.attacks[step as 1 | 2 | 3];
+    const { toHit, damageBonus } = characterData.attacks[step as 1 | 2 | 3];
+
     const d20 = Math.floor(Math.random() * 20) + 1;
-    const total = d20 + modifier;
+    const total = d20 + toHit;
 
     setAttackResult({ d20, total });
-    setAttackLog(`Attack ${attackCount}: ${d20} (d20) + ${modifier} (modifier) = ${total}`);
+    setAttackLog(`Attack ${attackCount}: ${d20} (d20) + ${toHit} (to-hit) = ${total}`);
+
+    rollDamage(damageBonus);
   };
 
   const resetAttack = () => {
     setAttackCount(1);
     setAttackResult(null);
     setAttackLog("");
+    setDamageResult(null);
+    setDamageBreakdown("");
   };
 
   // Save button
@@ -336,8 +368,8 @@ export default function CharacterSheetPage() {
                       ? `AC ${attackResult.total}`
                       : (() => {
                           const step = attackCount > 3 ? 3 : attackCount;
-                          const modifier = characterData.attacks[step as 1 | 2 | 3];
-                          return modifier >= 0 ? `+${modifier}` : `${modifier}`;
+                          const { toHit } = characterData.attacks[step as 1 | 2 | 3];
+                          return toHit >= 0 ? `+${toHit}` : `${toHit}`;
                         })()}
                   </span>
                 </button>
@@ -354,6 +386,13 @@ export default function CharacterSheetPage() {
               </div>
 
               {attackLog && <div className="mt-2 text-sm text-gray-400">{attackLog}</div>}
+
+              {damageResult !== null && (
+                <div className="mt-4 p-3 rounded bg-gray-800/60 border border-gray-700">
+                  <div className="text-emerald-300 font-semibold">Damage: {damageResult}</div>
+                  <div className="text-sm text-gray-400 mt-1">{damageBreakdown}</div>
+                </div>
+              )}
 
               {tooltip && (
                 <div className="mt-4 p-3 rounded bg-gray-800/90 border border-emerald-500 text-sm text-emerald-200 shadow-lg">
