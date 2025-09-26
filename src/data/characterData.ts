@@ -13,11 +13,11 @@ export const characterData = {
   ac: 34,
   hp: 203,
   saves: {
-    fort: { value: 24, improved: false, note: "" },
-    ref: { value: 24, improved: false, note: "" },
+    fort: { value: 24, improved: true, note: "Warden's Endurance: On a success, treat as a critical success. " },
+    ref: { value: 24, improved: true, note: "Natural Reflexes: On a success, treat as a critical success. " },
     will: {
       value: 22,
-      improved: true,
+      improved: false,
       note: "Improved Will Save: On a success, treat as a critical success.",
     },
   },
