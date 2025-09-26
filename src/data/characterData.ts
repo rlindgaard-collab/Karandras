@@ -39,7 +39,7 @@ export const characterData = {
   },
   // Damage opsætning
   damage: {
-    type: "Cold Iron", // overordnet damage type
+    type: "Cold Iron, Holy", // overordnet damage type
     dice: [
       { count: 3, die: 6, type: "Slashing" },
       { count: 1, die: 6, type: "Mental" },
