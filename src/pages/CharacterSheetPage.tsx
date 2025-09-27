@@ -53,12 +53,10 @@ export default function CharacterSheetPage() {
 
   const activeWeapon = characterData.weapons[activeWeaponIndex];
 
-  // Gem valgt våben
   useEffect(() => {
     localStorage.setItem("activeWeaponIndex", activeWeaponIndex.toString());
   }, [activeWeaponIndex]);
 
-  // Gem HP
   useEffect(() => {
     localStorage.setItem("currentHp", currentHp.toString());
   }, [currentHp]);
@@ -73,7 +71,7 @@ export default function CharacterSheetPage() {
   const effectiveHp = pendingHp !== null ? pendingHp : currentHp;
   const diff = pendingHp !== null ? pendingHp - currentHp : 0;
 
-  // Rul-funktion (saves/init)
+  // Rul save/init
   const rollCheck = (
     type: "fort" | "ref" | "will" | "initiative",
     current: RollResult | null,
@@ -89,7 +87,14 @@ export default function CharacterSheetPage() {
     const d20 = Math.floor(Math.random() * 20) + 1;
     const total = d20 + modifier;
     setResult({ d20, total });
-    setLastRoll(`${type}: ${d20} + ${modifier} = ${total}`);
+
+    setLastRoll(
+      `${type.toUpperCase()} Check\n` +
+      `d20 Roll: ${d20}\n` +
+      `Modifier: ${modifier >= 0 ? `+${modifier}` : modifier}\n` +
+      `-----------------\n` +
+      `Total: ${total}`
+    );
   };
 
   // Attack rul
@@ -110,23 +115,36 @@ export default function CharacterSheetPage() {
     const total = d20 + toHit;
 
     setAttackResult({ d20, total });
-    setAttackLog(`Attack ${attackCount}: ${d20} + ${toHit} = ${total}`);
+
+    // Bedre Attack log
+    setAttackLog(
+      `Attack ${attackCount}\n` +
+      `d20 Roll: ${d20}\n` +
+      `To-Hit Bonus: ${toHit >= 0 ? `+${toHit}` : toHit}\n` +
+      `-----------------\n` +
+      `Total: ${total}`
+    );
 
     // Damage rul
     let totalDmg = damageBonus;
-    const breakdown: string[] = [];
+    const breakdownLines: string[] = [];
 
     activeWeapon.damage.dice.forEach((dieDef) => {
+      const rolls: number[] = [];
       for (let i = 0; i < dieDef.count; i++) {
         const roll = Math.floor(Math.random() * dieDef.die) + 1;
+        rolls.push(roll);
         totalDmg += roll;
-        breakdown.push(`${roll} ${dieDef.type}`);
       }
+      breakdownLines.push(`${dieDef.count}d${dieDef.die} (${dieDef.type}): [${rolls.join(", ")}]`);
     });
 
-    breakdown.push(`+${damageBonus} bonus`);
+    breakdownLines.push(`Damage Bonus: +${damageBonus}`);
+    breakdownLines.push(`-----------------`);
+    breakdownLines.push(`Total Damage: ${totalDmg}`);
+
     setDamageResult(totalDmg);
-    setDamageBreakdown(breakdown.join(" + "));
+    setDamageBreakdown(breakdownLines.join("\n"));
   };
 
   const resetAttack = () => {
@@ -155,10 +173,10 @@ export default function CharacterSheetPage() {
     if (result) {
       if (result.d20 === 1) {
         classes =
-          "w-full p-3 rounded border text-center transition-all bg-red-900/60 border-red-400 shadow-[0_0_20px_rgba(239,68,68,0.8)]";
+          "w-full p-3 rounded border text-center transition-all bg-red-900/60 border-red-400";
       } else {
         classes =
-          "w-full p-3 rounded border text-center transition-all bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]";
+          "w-full p-3 rounded border text-center transition-all bg-emerald-900/60 border-emerald-400";
       }
     }
 
@@ -217,7 +235,7 @@ export default function CharacterSheetPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-sm sm:text-base font-medium rounded-t-lg transition-all flex-shrink-0 ${
                     isActive
-                      ? "bg-emerald-800/40 text-emerald-300 border-b-2 border-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.4)]"
+                      ? "bg-emerald-800/40 text-emerald-300 border-b-2 border-emerald-400"
                       : "text-gray-400 hover:text-emerald-300"
                   }`}
                 >
@@ -228,98 +246,16 @@ export default function CharacterSheetPage() {
           </div>
         </CardHeader>
 
-        <CardContent className="text-gray-300 text-sm sm:text-base leading-relaxed space-y-6">
+        <CardContent className="space-y-6">
           {activeTab === "battle" && (
             <div>
-              {/* AC & Speed */}
+              {/* AC + Speed */}
               <div className="mb-6 p-3 rounded bg-gray-800/60 border border-gray-700 text-center">
                 <span className="block text-xs text-gray-400">AC</span>
-                <span className="text-lg font-semibold text-emerald-300">
-                  {characterData.ac}
-                </span>
+                <span className="text-lg font-semibold text-emerald-300">{characterData.ac}</span>
                 <span className="block text-xs text-gray-400 mt-1">
                   Speed: {characterData.speed} ft
                 </span>
-              </div>
-
-              {/* HP */}
-              <div className="mb-6 relative">
-                <label className="block text-sm text-gray-400 mb-2">Hit Points</label>
-                {diff !== 0 && (
-                  <div
-                    className={`absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-bold animate-pulse ${
-                      diff > 0 ? "text-emerald-400" : "text-red-400"
-                    }`}
-                  >
-                    {diff > 0 ? `+${diff}` : diff}
-                  </div>
-                )}
-                <input
-                  type="range"
-                  min={0}
-                  max={characterData.hp}
-                  value={effectiveHp}
-                  onChange={(e) => setPendingHp(parseInt(e.target.value, 10))}
-                  className="w-full h-3 rounded-lg appearance-none cursor-pointer"
-                />
-                <div className="flex justify-between items-center mt-2 text-sm">
-                  <span>
-                    {effectiveHp} / {characterData.hp}
-                  </span>
-                  {pendingHp !== null && (
-                    <button
-                      type="button"
-                      onClick={applyChange}
-                      className="ml-4 px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-600 text-sm font-medium"
-                    >
-                      Apply
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Saves + Initiative */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <SaveButton
-                  label="fort"
-                  result={fortResult}
-                  setResult={setFortResult}
-                  data={characterData.saves.fort}
-                />
-                <SaveButton
-                  label="ref"
-                  result={refResult}
-                  setResult={setRefResult}
-                  data={characterData.saves.ref}
-                />
-                <SaveButton
-                  label="will"
-                  result={willResult}
-                  setResult={setWillResult}
-                  data={characterData.saves.will}
-                />
-                <button
-                  type="button"
-                  onClick={() =>
-                    rollCheck("initiative", initiativeResult, setInitiativeResult, characterData.initiative)
-                  }
-                  className={`p-3 rounded border text-center transition-all ${
-                    initiativeResult
-                      ? initiativeResult.d20 === 1
-                        ? "bg-red-900/60 border-red-400"
-                        : "bg-emerald-900/60 border-emerald-400"
-                      : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
-                  }`}
-                >
-                  <span className="block text-xs text-gray-400">Init</span>
-                  <span
-                    className={`text-lg font-semibold ${
-                      initiativeResult?.d20 === 1 ? "text-red-300" : "text-emerald-300"
-                    }`}
-                  >
-                    {initiativeResult ? initiativeResult.total : characterData.initiative}
-                  </span>
-                </button>
               </div>
 
               {/* Attack Button */}
@@ -354,6 +290,11 @@ export default function CharacterSheetPage() {
                 </button>
               </div>
 
+              {/* Attack Log */}
+              {attackLog && (
+                <pre className="mt-2 text-sm text-gray-400 whitespace-pre-line">{attackLog}</pre>
+              )}
+
               {/* Damage Box */}
               <div className="mt-4 space-y-2">
                 <div className="w-full p-3 rounded border text-center bg-gray-800/60 border-gray-700 shadow">
@@ -368,39 +309,9 @@ export default function CharacterSheetPage() {
                   )}
                 </div>
                 {damageResult !== null && (
-                  <div className="text-sm text-gray-400">{damageBreakdown}</div>
+                  <pre className="text-sm text-gray-400 whitespace-pre-line">{damageBreakdown}</pre>
                 )}
               </div>
-
-              {/* Weapon Switch */}
-              <div className="mt-4 flex gap-2">
-                {characterData.weapons.map((w, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setActiveWeaponIndex(idx)}
-                    className={`px-3 py-1 rounded text-sm ${
-                      idx === activeWeaponIndex
-                        ? "bg-emerald-700 text-white"
-                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                    }`}
-                  >
-                    {w.name}
-                  </button>
-                ))}
-              </div>
-
-              {attackLog && <div className="mt-2 text-sm text-gray-400">{attackLog}</div>}
-              {tooltip && (
-                <div className="mt-4 p-3 rounded bg-gray-800/90 border border-emerald-500 text-sm text-emerald-200 shadow-lg">
-                  {tooltip.text}
-                </div>
-              )}
-              {lastRoll && (
-                <div className="mt-4 text-sm text-gray-400" aria-live="polite">
-                  {lastRoll}
-                </div>
-              )}
             </div>
           )}
         </CardContent>
