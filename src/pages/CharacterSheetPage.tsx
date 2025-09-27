@@ -45,10 +45,20 @@ export default function CharacterSheetPage() {
   const [damageResult, setDamageResult] = useState<number | null>(null);
   const [damageBreakdown, setDamageBreakdown] = useState<string>("");
 
-  // Weapon state
-  const [activeWeaponIndex, setActiveWeaponIndex] = useState(0);
+  // Weapon state with localStorage support
+  const [activeWeaponIndex, setActiveWeaponIndex] = useState(() => {
+    const saved = localStorage.getItem("activeWeaponIndex");
+    return saved ? parseInt(saved, 10) : characterData.defaultWeaponIndex;
+  });
+
   const activeWeapon = characterData.weapons[activeWeaponIndex];
 
+  // Gem valgt våben i localStorage
+  useEffect(() => {
+    localStorage.setItem("activeWeaponIndex", activeWeaponIndex.toString());
+  }, [activeWeaponIndex]);
+
+  // Gem HP i localStorage
   useEffect(() => {
     localStorage.setItem("currentHp", currentHp.toString());
   }, [currentHp]);
@@ -95,19 +105,18 @@ export default function CharacterSheetPage() {
     }
 
     const step = attackCount > 3 ? 3 : attackCount;
-    const modifier = activeWeapon.attacks[step as 1 | 2 | 3].toHit;
+    const { toHit, damageBonus } = activeWeapon.attacks[step as 1 | 2 | 3];
     const d20 = Math.floor(Math.random() * 20) + 1;
-    const total = d20 + modifier;
+    const total = d20 + toHit;
 
     setAttackResult({ d20, total });
-    setAttackLog(`Attack ${attackCount}: ${d20} + ${modifier} = ${total}`);
+    setAttackLog(`Attack ${attackCount}: ${d20} + ${toHit} = ${total}`);
 
     // Rul damage
-    const dmgConfig = activeWeapon.damage;
-    let totalDmg = activeWeapon.attacks[step as 1 | 2 | 3].damageBonus;
+    let totalDmg = damageBonus;
     const breakdown: string[] = [];
 
-    dmgConfig.dice.forEach((dieDef) => {
+    activeWeapon.damage.dice.forEach((dieDef) => {
       for (let i = 0; i < dieDef.count; i++) {
         const roll = Math.floor(Math.random() * dieDef.die) + 1;
         totalDmg += roll;
@@ -115,8 +124,7 @@ export default function CharacterSheetPage() {
       }
     });
 
-    breakdown.push(`+${activeWeapon.attacks[step as 1 | 2 | 3].damageBonus} bonus`);
-
+    breakdown.push(`+${damageBonus} bonus`);
     setDamageResult(totalDmg);
     setDamageBreakdown(breakdown.join(" + "));
   };
@@ -223,7 +231,7 @@ export default function CharacterSheetPage() {
         <CardContent className="min-h-[300px] sm:min-h-[400px] text-gray-300 text-sm sm:text-base leading-relaxed space-y-6">
           {activeTab === "battle" && (
             <div>
-              {/* --- AC & Speed --- */}
+              {/* AC & Speed */}
               <div className="mb-6 p-3 rounded bg-gray-800/60 border border-gray-700 text-center">
                 <span className="block text-xs text-gray-400">AC</span>
                 <span className="text-lg font-semibold text-emerald-300">
@@ -234,7 +242,7 @@ export default function CharacterSheetPage() {
                 </span>
               </div>
 
-              {/* --- HP --- */}
+              {/* HP */}
               <div className="mb-6 relative">
                 <label className="block text-sm text-gray-400 mb-2">Hit Points</label>
                 {diff !== 0 && (
@@ -270,7 +278,7 @@ export default function CharacterSheetPage() {
                 </div>
               </div>
 
-              {/* --- Saves + Initiative --- */}
+              {/* Saves + Initiative */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <SaveButton
                   label="fort"
@@ -314,7 +322,7 @@ export default function CharacterSheetPage() {
                 </button>
               </div>
 
-              {/* --- Attack Button --- */}
+              {/* Attack Button */}
               <div className="relative mt-6">
                 <button
                   type="button"
@@ -332,7 +340,6 @@ export default function CharacterSheetPage() {
                     {attackResult ? `AC ${attackResult.total}` : `+${activeWeapon.attacks[1].toHit}`}
                   </span>
                 </button>
-                {/* Reset */}
                 <button
                   type="button"
                   onClick={resetAttack}
@@ -342,7 +349,7 @@ export default function CharacterSheetPage() {
                 </button>
               </div>
 
-              {/* --- Damage Box --- */}
+              {/* Damage Box */}
               <div className="mt-4 space-y-2">
                 <div className="w-full p-3 rounded border text-center bg-gray-800/60 border-gray-700 shadow">
                   <span className="block text-xs text-gray-400">Damage</span>
@@ -355,7 +362,6 @@ export default function CharacterSheetPage() {
                     </span>
                   )}
                 </div>
-
                 {damageResult !== null && (
                   <div className="text-sm text-gray-400">{damageBreakdown}</div>
                 )}
