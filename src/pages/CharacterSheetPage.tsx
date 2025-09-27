@@ -31,7 +31,7 @@ export default function CharacterSheetPage() {
   const [initiativeResult, setInitiativeResult] = useState<RollResult | null>(null);
   const [lastRoll, setLastRoll] = useState<string>("");
 
-  // Tooltip state
+  // Tooltip
   const [tooltip, setTooltip] = useState<{ from: "fort" | "ref" | "will"; text: string } | null>(
     null
   );
@@ -44,6 +44,10 @@ export default function CharacterSheetPage() {
   // Damage state
   const [damageResult, setDamageResult] = useState<number | null>(null);
   const [damageBreakdown, setDamageBreakdown] = useState<string>("");
+
+  // Weapon state
+  const [activeWeaponIndex, setActiveWeaponIndex] = useState(0);
+  const activeWeapon = characterData.weapons[activeWeaponIndex];
 
   useEffect(() => {
     localStorage.setItem("currentHp", currentHp.toString());
@@ -59,7 +63,7 @@ export default function CharacterSheetPage() {
   const effectiveHp = pendingHp !== null ? pendingHp : currentHp;
   const diff = pendingHp !== null ? pendingHp - currentHp : 0;
 
-  // Generel rul-funktion
+  // Generel rul-funktion (saves, init)
   const rollCheck = (
     type: "fort" | "ref" | "will" | "initiative",
     current: RollResult | null,
@@ -75,34 +79,13 @@ export default function CharacterSheetPage() {
     const d20 = Math.floor(Math.random() * 20) + 1;
     const total = d20 + modifier;
     setResult({ d20, total });
-    setLastRoll(
-      `${type.charAt(0).toUpperCase() + type.slice(1)}: ${d20} (d20) + ${modifier} (modifier) = ${total}`
-    );
-  };
-
-  // Damage rul
-  const rollDamage = (damageBonus: number) => {
-    const { dice } = characterData.damage;
-    let total = damageBonus;
-    let parts: string[] = [];
-
-    dice.forEach((d) => {
-      let rolls: number[] = [];
-      for (let i = 0; i < d.count; i++) {
-        const roll = Math.floor(Math.random() * d.die) + 1;
-        rolls.push(roll);
-        total += roll;
-      }
-      parts.push(`${d.count}d${d.die} (${d.type}): [${rolls.join(", ")}]`);
-    });
-
-    parts.push(`Damage Bonus: +${damageBonus}`);
-    setDamageResult(total);
-    setDamageBreakdown(parts.join(" + "));
+    setLastRoll(`${type}: ${d20} + ${modifier} = ${total}`);
   };
 
   // Attack rul
   const rollAttack = () => {
+    if (!activeWeapon) return;
+
     if (attackResult) {
       setAttackResult(null);
       setAttackCount((prev) => prev + 1);
@@ -112,15 +95,30 @@ export default function CharacterSheetPage() {
     }
 
     const step = attackCount > 3 ? 3 : attackCount;
-    const { toHit, damageBonus } = characterData.attacks[step as 1 | 2 | 3];
-
+    const modifier = activeWeapon.attacks[step as 1 | 2 | 3].toHit;
     const d20 = Math.floor(Math.random() * 20) + 1;
-    const total = d20 + toHit;
+    const total = d20 + modifier;
 
     setAttackResult({ d20, total });
-    setAttackLog(`Attack ${attackCount}: ${d20} (d20) + ${toHit} (to-hit) = ${total}`);
+    setAttackLog(`Attack ${attackCount}: ${d20} + ${modifier} = ${total}`);
 
-    rollDamage(damageBonus);
+    // Rul damage
+    const dmgConfig = activeWeapon.damage;
+    let totalDmg = activeWeapon.attacks[step as 1 | 2 | 3].damageBonus;
+    const breakdown: string[] = [];
+
+    dmgConfig.dice.forEach((dieDef) => {
+      for (let i = 0; i < dieDef.count; i++) {
+        const roll = Math.floor(Math.random() * dieDef.die) + 1;
+        totalDmg += roll;
+        breakdown.push(`${roll} ${dieDef.type}`);
+      }
+    });
+
+    breakdown.push(`+${activeWeapon.attacks[step as 1 | 2 | 3].damageBonus} bonus`);
+
+    setDamageResult(totalDmg);
+    setDamageBreakdown(breakdown.join(" + "));
   };
 
   const resetAttack = () => {
@@ -196,10 +194,7 @@ export default function CharacterSheetPage() {
             <CardTitle className="flex items-center gap-2 text-emerald-400 text-lg sm:text-xl">
               Character Sheet
             </CardTitle>
-            <Link
-              to="/"
-              className="text-sm text-emerald-400 hover:underline whitespace-nowrap"
-            >
+            <Link to="/" className="text-sm text-emerald-400 hover:underline whitespace-nowrap">
               ← Back
             </Link>
           </div>
@@ -228,11 +223,7 @@ export default function CharacterSheetPage() {
         <CardContent className="min-h-[300px] sm:min-h-[400px] text-gray-300 text-sm sm:text-base leading-relaxed space-y-6">
           {activeTab === "battle" && (
             <div>
-              <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-4">
-                Battle
-              </h2>
-
-              {/* AC + Speed */}
+              {/* --- AC & Speed --- */}
               <div className="mb-6 p-3 rounded bg-gray-800/60 border border-gray-700 text-center">
                 <span className="block text-xs text-gray-400">AC</span>
                 <span className="text-lg font-semibold text-emerald-300">
@@ -243,17 +234,13 @@ export default function CharacterSheetPage() {
                 </span>
               </div>
 
-              {/* HP Slider */}
+              {/* --- HP --- */}
               <div className="mb-6 relative">
-                <label className="block text-sm text-gray-400 mb-2">
-                  Hit Points
-                </label>
+                <label className="block text-sm text-gray-400 mb-2">Hit Points</label>
                 {diff !== 0 && (
                   <div
-                    className={`absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-bold transition-all duration-300 animate-pulse ${
-                      diff > 0
-                        ? "text-emerald-400 drop-shadow-[0_0_6px_rgba(16,185,129,0.9)]"
-                        : "text-red-400 drop-shadow-[0_0_6px_rgba(239,68,68,0.9)]"
+                    className={`absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-bold animate-pulse ${
+                      diff > 0 ? "text-emerald-400" : "text-red-400"
                     }`}
                   >
                     {diff > 0 ? `+${diff}` : diff}
@@ -266,19 +253,6 @@ export default function CharacterSheetPage() {
                   value={effectiveHp}
                   onChange={(e) => setPendingHp(parseInt(e.target.value, 10))}
                   className="w-full h-3 rounded-lg appearance-none cursor-pointer"
-                  style={{
-                    background: `linear-gradient(
-                      to right,
-                      ${
-                        diff > 0
-                          ? "rgba(16,185,129,0.7)"
-                          : diff < 0
-                          ? "rgba(239,68,68,0.7)"
-                          : "rgba(16,185,129,0.5)"
-                      } ${(effectiveHp / characterData.hp) * 100}%,
-                      rgba(31,41,55,0.8) ${(effectiveHp / characterData.hp) * 100}%
-                    )`,
-                  }}
                 />
                 <div className="flex justify-between items-center mt-2 text-sm">
                   <span>
@@ -296,7 +270,7 @@ export default function CharacterSheetPage() {
                 </div>
               </div>
 
-              {/* Saves + Initiative */}
+              {/* --- Saves + Initiative --- */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <SaveButton
                   label="fort"
@@ -319,18 +293,13 @@ export default function CharacterSheetPage() {
                 <button
                   type="button"
                   onClick={() =>
-                    rollCheck(
-                      "initiative",
-                      initiativeResult,
-                      setInitiativeResult,
-                      characterData.initiative
-                    )
+                    rollCheck("initiative", initiativeResult, setInitiativeResult, characterData.initiative)
                   }
                   className={`p-3 rounded border text-center transition-all ${
                     initiativeResult
                       ? initiativeResult.d20 === 1
-                        ? "bg-red-900/60 border-red-400 shadow-[0_0_20px_rgba(239,68,68,0.8)]"
-                        : "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                        ? "bg-red-900/60 border-red-400"
+                        : "bg-emerald-900/60 border-emerald-400"
                       : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
                   }`}
                 >
@@ -345,7 +314,7 @@ export default function CharacterSheetPage() {
                 </button>
               </div>
 
-              {/* Attack Knapsystem */}
+              {/* --- Attack Button --- */}
               <div className="relative mt-6">
                 <button
                   type="button"
@@ -353,69 +322,69 @@ export default function CharacterSheetPage() {
                   className={`w-full p-3 rounded border text-center transition-all ${
                     attackResult
                       ? attackResult.d20 === 1
-                        ? "bg-red-900/60 border-red-400 shadow-[0_0_20px_rgba(239,68,68,0.8)]"
-                        : "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                        ? "bg-red-900/60 border-red-400"
+                        : "bg-emerald-900/60 border-emerald-400"
                       : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
                   }`}
                 >
                   <span className="block text-xs text-gray-400">Attack {attackCount}</span>
-                  <span
-                    className={`text-lg font-semibold ${
-                      attackResult?.d20 === 1 ? "text-red-300" : "text-emerald-300"
-                    }`}
-                  >
-                    {attackResult
-                      ? `AC ${attackResult.total}`
-                      : (() => {
-                          const step = attackCount > 3 ? 3 : attackCount;
-                          const { toHit } = characterData.attacks[step as 1 | 2 | 3];
-                          return toHit >= 0 ? `+${toHit}` : `${toHit}`;
-                        })()}
+                  <span className="text-lg font-semibold text-emerald-300">
+                    {attackResult ? `AC ${attackResult.total}` : `+${activeWeapon.attacks[1].toHit}`}
                   </span>
                 </button>
-
-                {/* Reset ikon */}
+                {/* Reset */}
                 <button
                   type="button"
                   onClick={resetAttack}
                   className="absolute top-2 right-2 p-1 rounded-full bg-gray-700 hover:bg-gray-600 border border-gray-500"
-                  title="Reset attacks"
                 >
                   <RotateCcw className="w-4 h-4 text-gray-300" />
                 </button>
               </div>
 
-              {attackLog && <div className="mt-2 text-sm text-gray-400">{attackLog}</div>}
-
-              {/* Damage visning */}
-              {damageResult !== null && (
-                <div className="mt-4 space-y-2">
-                  {/* Damage Total */}
-                  <div
-                    className="w-full p-3 rounded border text-center transition-all
-                               bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
-                  >
-                    <span className="block text-xs text-gray-400">Damage</span>
-                    <span className="text-2xl font-bold text-emerald-300">
-                      {damageResult}
-                    </span>
-                    {/* Viser overordnet damage type */}
+              {/* --- Damage Box --- */}
+              <div className="mt-4 space-y-2">
+                <div className="w-full p-3 rounded border text-center bg-gray-800/60 border-gray-700 shadow">
+                  <span className="block text-xs text-gray-400">Damage</span>
+                  <span className="text-2xl font-bold text-emerald-300">
+                    {damageResult !== null ? damageResult : activeWeapon.name}
+                  </span>
+                  {damageResult === null && (
                     <span className="block text-xs text-gray-400 mt-1">
-                      Type: {characterData.damage.type}
+                      Using {activeWeapon.name}
                     </span>
-                  </div>
-
-                  {/* Breakdown */}
-                  <div className="text-sm text-gray-400">{damageBreakdown}</div>
+                  )}
                 </div>
-              )}
 
+                {damageResult !== null && (
+                  <div className="text-sm text-gray-400">{damageBreakdown}</div>
+                )}
+              </div>
+
+              {/* Weapon Switch */}
+              <div className="mt-4 flex gap-2">
+                {characterData.weapons.map((w, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveWeaponIndex(idx)}
+                    className={`px-3 py-1 rounded text-sm ${
+                      idx === activeWeaponIndex
+                        ? "bg-emerald-700 text-white"
+                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                    }`}
+                  >
+                    {w.name}
+                  </button>
+                ))}
+              </div>
+
+              {attackLog && <div className="mt-2 text-sm text-gray-400">{attackLog}</div>}
               {tooltip && (
                 <div className="mt-4 p-3 rounded bg-gray-800/90 border border-emerald-500 text-sm text-emerald-200 shadow-lg">
                   {tooltip.text}
                 </div>
               )}
-
               {lastRoll && (
                 <div className="mt-4 text-sm text-gray-400" aria-live="polite">
                   {lastRoll}
