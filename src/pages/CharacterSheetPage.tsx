@@ -13,6 +13,7 @@ const tabs = [
 
 type TabId = typeof tabs[number]["id"];
 type RollResult = { d20: number; total: number };
+type BreakdownLine = { text: string; type?: string };
 
 export default function CharacterSheetPage() {
   const [activeTab, setActiveTab] = useState<TabId>("battle");
@@ -43,7 +44,7 @@ export default function CharacterSheetPage() {
 
   // Damage state
   const [damageResult, setDamageResult] = useState<number | null>(null);
-  const [damageBreakdown, setDamageBreakdown] = useState<string>("");
+  const [damageBreakdown, setDamageBreakdown] = useState<BreakdownLine[]>([]);
 
   // Weapon state med localStorage support
   const [activeWeaponIndex, setActiveWeaponIndex] = useState(() => {
@@ -71,7 +72,7 @@ export default function CharacterSheetPage() {
   const effectiveHp = pendingHp !== null ? pendingHp : currentHp;
   const diff = pendingHp !== null ? pendingHp - currentHp : 0;
 
-  // Rul save/init
+  // Save/init rul
   const rollCheck = (
     type: "fort" | "ref" | "will" | "initiative",
     current: RollResult | null,
@@ -90,10 +91,10 @@ export default function CharacterSheetPage() {
 
     setLastRoll(
       `${type.toUpperCase()} Check\n` +
-      `d20 Roll: ${d20}\n` +
-      `Modifier: ${modifier >= 0 ? `+${modifier}` : modifier}\n` +
-      `-----------------\n` +
-      `Total: ${total}`
+        `d20 Roll: ${d20}\n` +
+        `Modifier: ${modifier >= 0 ? `+${modifier}` : modifier}\n` +
+        `-----------------\n` +
+        `Total: ${total}`
     );
   };
 
@@ -105,7 +106,7 @@ export default function CharacterSheetPage() {
       setAttackResult(null);
       setAttackCount((prev) => prev + 1);
       setDamageResult(null);
-      setDamageBreakdown("");
+      setDamageBreakdown([]);
       return;
     }
 
@@ -116,18 +117,17 @@ export default function CharacterSheetPage() {
 
     setAttackResult({ d20, total });
 
-    // Bedre Attack log
     setAttackLog(
       `Attack ${attackCount}\n` +
-      `d20 Roll: ${d20}\n` +
-      `To-Hit Bonus: ${toHit >= 0 ? `+${toHit}` : toHit}\n` +
-      `-----------------\n` +
-      `Total: ${total}`
+        `d20 Roll: ${d20}\n` +
+        `To-Hit Bonus: ${toHit >= 0 ? `+${toHit}` : toHit}\n` +
+        `-----------------\n` +
+        `Total: ${total}`
     );
 
     // Damage rul
     let totalDmg = damageBonus;
-    const breakdownLines: string[] = [];
+    const breakdownLines: BreakdownLine[] = [];
 
     activeWeapon.damage.dice.forEach((dieDef) => {
       const rolls: number[] = [];
@@ -136,15 +136,18 @@ export default function CharacterSheetPage() {
         rolls.push(roll);
         totalDmg += roll;
       }
-      breakdownLines.push(`${dieDef.count}d${dieDef.die} (${dieDef.type}): [${rolls.join(", ")}]`);
+      breakdownLines.push({
+        text: `${dieDef.count}d${dieDef.die} (${dieDef.type}): [${rolls.join(", ")}]`,
+        type: dieDef.type,
+      });
     });
 
-    breakdownLines.push(`Damage Bonus: +${damageBonus}`);
-    breakdownLines.push(`-----------------`);
-    breakdownLines.push(`Total Damage: ${totalDmg}`);
+    breakdownLines.push({ text: `Damage Bonus: +${damageBonus}` });
+    breakdownLines.push({ text: `-----------------` });
+    breakdownLines.push({ text: `Total Damage: ${totalDmg}` });
 
     setDamageResult(totalDmg);
-    setDamageBreakdown(breakdownLines.join("\n"));
+    setDamageBreakdown(breakdownLines);
   };
 
   const resetAttack = () => {
@@ -152,7 +155,7 @@ export default function CharacterSheetPage() {
     setAttackResult(null);
     setAttackLog("");
     setDamageResult(null);
-    setDamageBreakdown("");
+    setDamageBreakdown([]);
   };
 
   // Save button
@@ -258,12 +261,97 @@ export default function CharacterSheetPage() {
                 </span>
               </div>
 
-              {/* Attack Button */}
+              {/* HP Slider */}
+              <div className="mb-6 relative">
+                <label className="block text-sm text-gray-400 mb-2">Hit Points</label>
+                {diff !== 0 && (
+                  <div
+                    className={`absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-bold animate-pulse ${
+                      diff > 0 ? "text-emerald-400" : "text-red-400"
+                    }`}
+                  >
+                    {diff > 0 ? `+${diff}` : diff}
+                  </div>
+                )}
+                <input
+                  type="range"
+                  min={0}
+                  max={characterData.hp}
+                  value={effectiveHp}
+                  onChange={(e) => setPendingHp(parseInt(e.target.value, 10))}
+                  className="w-full h-3 rounded-lg appearance-none cursor-pointer"
+                />
+                <div className="flex justify-between items-center mt-2 text-sm">
+                  <span>
+                    {effectiveHp} / {characterData.hp}
+                  </span>
+                  {pendingHp !== null && (
+                    <button
+                      type="button"
+                      onClick={applyChange}
+                      className="ml-4 px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-600 text-sm font-medium"
+                    >
+                      Apply
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Saves + Initiative */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <SaveButton
+                  label="fort"
+                  result={fortResult}
+                  setResult={setFortResult}
+                  data={characterData.saves.fort}
+                />
+                <SaveButton
+                  label="ref"
+                  result={refResult}
+                  setResult={setRefResult}
+                  data={characterData.saves.ref}
+                />
+                <SaveButton
+                  label="will"
+                  result={willResult}
+                  setResult={setWillResult}
+                  data={characterData.saves.will}
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    rollCheck(
+                      "initiative",
+                      initiativeResult,
+                      setInitiativeResult,
+                      characterData.initiative
+                    )
+                  }
+                  className={`p-3 rounded border text-center ${
+                    initiativeResult
+                      ? initiativeResult.d20 === 1
+                        ? "bg-red-900/60 border-red-400"
+                        : "bg-emerald-900/60 border-emerald-400"
+                      : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
+                  }`}
+                >
+                  <span className="block text-xs text-gray-400">Init</span>
+                  <span
+                    className={`text-lg font-semibold ${
+                      initiativeResult?.d20 === 1 ? "text-red-300" : "text-emerald-300"
+                    }`}
+                  >
+                    {initiativeResult ? initiativeResult.total : characterData.initiative}
+                  </span>
+                </button>
+              </div>
+
+              {/* Attack Knapsystem */}
               <div className="relative mt-6">
                 <button
                   type="button"
                   onClick={rollAttack}
-                  className={`w-full p-3 rounded border text-center transition-all ${
+                  className={`w-full p-3 rounded border text-center ${
                     attackResult
                       ? attackResult.d20 === 1
                         ? "bg-red-900/60 border-red-400"
@@ -290,7 +378,6 @@ export default function CharacterSheetPage() {
                 </button>
               </div>
 
-              {/* Attack Log */}
               {attackLog && (
                 <pre className="mt-2 text-sm text-gray-400 whitespace-pre-line">{attackLog}</pre>
               )}
@@ -309,9 +396,35 @@ export default function CharacterSheetPage() {
                   )}
                 </div>
                 {damageResult !== null && (
-                  <pre className="text-sm text-gray-400 whitespace-pre-line">{damageBreakdown}</pre>
+                  <div className="text-sm space-y-1">
+                    {damageBreakdown.map((line, idx) => {
+                      let color = "text-gray-300";
+                      if (line.type === "Slashing") color = "text-red-400";
+                      if (line.type === "Piercing") color = "text-yellow-400";
+                      if (line.type === "Spirit") color = "text-purple-400";
+                      if (line.type === "Mental") color = "text-blue-400";
+
+                      return (
+                        <div key={idx} className={color}>
+                          {line.text}
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
+
+              {tooltip && (
+                <div className="mt-4 p-3 rounded bg-gray-800/90 border border-emerald-500 text-sm text-emerald-200 shadow-lg">
+                  {tooltip.text}
+                </div>
+              )}
+
+              {lastRoll && (
+                <pre className="mt-4 text-sm text-gray-400 whitespace-pre-line" aria-live="polite">
+                  {lastRoll}
+                </pre>
+              )}
             </div>
           )}
         </CardContent>
