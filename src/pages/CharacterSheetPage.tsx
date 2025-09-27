@@ -45,7 +45,7 @@ export default function CharacterSheetPage() {
   const [damageResult, setDamageResult] = useState<number | null>(null);
   const [damageBreakdown, setDamageBreakdown] = useState<string>("");
 
-  // Weapon state with localStorage support
+  // Weapon state med localStorage support
   const [activeWeaponIndex, setActiveWeaponIndex] = useState(() => {
     const saved = localStorage.getItem("activeWeaponIndex");
     return saved ? parseInt(saved, 10) : characterData.defaultWeaponIndex;
@@ -53,12 +53,12 @@ export default function CharacterSheetPage() {
 
   const activeWeapon = characterData.weapons[activeWeaponIndex];
 
-  // Gem valgt våben i localStorage
+  // Gem valgt våben
   useEffect(() => {
     localStorage.setItem("activeWeaponIndex", activeWeaponIndex.toString());
   }, [activeWeaponIndex]);
 
-  // Gem HP i localStorage
+  // Gem HP
   useEffect(() => {
     localStorage.setItem("currentHp", currentHp.toString());
   }, [currentHp]);
@@ -73,7 +73,7 @@ export default function CharacterSheetPage() {
   const effectiveHp = pendingHp !== null ? pendingHp : currentHp;
   const diff = pendingHp !== null ? pendingHp - currentHp : 0;
 
-  // Generel rul-funktion (saves, init)
+  // Rul-funktion (saves/init)
   const rollCheck = (
     type: "fort" | "ref" | "will" | "initiative",
     current: RollResult | null,
@@ -112,7 +112,7 @@ export default function CharacterSheetPage() {
     setAttackResult({ d20, total });
     setAttackLog(`Attack ${attackCount}: ${d20} + ${toHit} = ${total}`);
 
-    // Rul damage
+    // Damage rul
     let totalDmg = damageBonus;
     const breakdown: string[] = [];
 
@@ -228,7 +228,7 @@ export default function CharacterSheetPage() {
           </div>
         </CardHeader>
 
-        <CardContent className="min-h-[300px] sm:min-h-[400px] text-gray-300 text-sm sm:text-base leading-relaxed space-y-6">
+        <CardContent className="text-gray-300 text-sm sm:text-base leading-relaxed space-y-6">
           {activeTab === "battle" && (
             <div>
               {/* AC & Speed */}
@@ -337,7 +337,12 @@ export default function CharacterSheetPage() {
                 >
                   <span className="block text-xs text-gray-400">Attack {attackCount}</span>
                   <span className="text-lg font-semibold text-emerald-300">
-                    {attackResult ? `AC ${attackResult.total}` : `+${activeWeapon.attacks[1].toHit}`}
+                    {attackResult
+                      ? `AC ${attackResult.total}`
+                      : (() => {
+                          const step = attackCount > 3 ? 3 : attackCount;
+                          return `+${activeWeapon.attacks[step as 1 | 2 | 3].toHit}`;
+                        })()}
                   </span>
                 </button>
                 <button
