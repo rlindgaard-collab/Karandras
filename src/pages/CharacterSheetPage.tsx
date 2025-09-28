@@ -280,6 +280,19 @@ export default function CharacterSheetPage() {
                   value={effectiveHp}
                   onChange={(e) => setPendingHp(parseInt(e.target.value, 10))}
                   className="w-full h-3 rounded-lg appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(
+                      to right,
+                      ${
+                        diff > 0
+                          ? "rgba(16,185,129,0.7)"
+                          : diff < 0
+                          ? "rgba(239,68,68,0.7)"
+                          : "rgba(16,185,129,0.5)"
+                      } ${(effectiveHp / characterData.hp) * 100}%,
+                      rgba(31,41,55,0.8) ${(effectiveHp / characterData.hp) * 100}%
+                    )`,
+                  }}
                 />
                 <div className="flex justify-between items-center mt-2 text-sm">
                   <span>
@@ -346,6 +359,24 @@ export default function CharacterSheetPage() {
                 </button>
               </div>
 
+              {/* Weapon selector */}
+              <div className="mt-6 flex gap-2 flex-wrap">
+                {characterData.weapons.map((w, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveWeaponIndex(idx)}
+                    className={`px-3 py-2 rounded text-sm font-medium transition-all ${
+                      activeWeaponIndex === idx
+                        ? "bg-emerald-700 text-white shadow-lg"
+                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                    }`}
+                  >
+                    {w.name}
+                  </button>
+                ))}
+              </div>
+
               {/* Attack Knapsystem */}
               <div className="relative mt-6">
                 <button
@@ -389,11 +420,9 @@ export default function CharacterSheetPage() {
                   <span className="text-2xl font-bold text-emerald-300">
                     {damageResult !== null ? damageResult : activeWeapon.name}
                   </span>
-                  {damageResult === null && (
-                    <span className="block text-xs text-gray-400 mt-1">
-                      Using {activeWeapon.name}
-                    </span>
-                  )}
+                  <span className="block text-xs text-gray-400 mt-1">
+                    Using {activeWeapon.name}
+                  </span>
                 </div>
                 {damageResult !== null && (
                   <div className="text-sm space-y-1">
