@@ -360,16 +360,16 @@ export default function CharacterSheetPage() {
               </div>
 
               {/* Weapon selector */}
-              <div className="mt-6 flex gap-2 flex-wrap">
+              <div className="mt-6 flex gap-2">
                 {characterData.weapons.map((w, idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => setActiveWeaponIndex(idx)}
-                    className={`px-3 py-2 rounded text-sm font-medium transition-all ${
-                      activeWeaponIndex === idx
-                        ? "bg-emerald-700 text-white shadow-lg"
-                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                    className={`flex-1 px-3 py-2 rounded text-sm font-medium border transition-all ${
+                      idx === activeWeaponIndex
+                        ? "bg-emerald-700 text-white border-emerald-400 shadow"
+                        : "bg-gray-800/60 text-gray-300 border-gray-700 hover:bg-emerald-800/40 hover:text-emerald-300"
                     }`}
                   >
                     {w.name}
@@ -417,13 +417,26 @@ export default function CharacterSheetPage() {
               <div className="mt-4 space-y-2">
                 <div className="w-full p-3 rounded border text-center bg-gray-800/60 border-gray-700 shadow">
                   <span className="block text-xs text-gray-400">Damage</span>
-                  <span className="text-2xl font-bold text-emerald-300">
-                    {damageResult !== null ? damageResult : activeWeapon.name}
-                  </span>
-                  <span className="block text-xs text-gray-400 mt-1">
-                    Using {activeWeapon.name}
-                  </span>
+
+                  {damageResult !== null ? (
+                    <>
+                      <span className="text-2xl font-bold text-emerald-300">
+                        {damageResult}
+                      </span>
+                      <span className="block text-xs text-gray-400 mt-1">
+                        Using {activeWeapon.name}
+                      </span>
+                      <span className="block text-xs text-emerald-400 mt-1">
+                        Damage Type: {activeWeapon.damage.type}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-lg font-semibold text-emerald-400">
+                      {activeWeapon.name}
+                    </span>
+                  )}
                 </div>
+
                 {damageResult !== null && (
                   <div className="text-sm space-y-1">
                     {damageBreakdown.map((line, idx) => {
@@ -432,6 +445,7 @@ export default function CharacterSheetPage() {
                       if (line.type === "Piercing") color = "text-yellow-400";
                       if (line.type === "Spirit") color = "text-purple-400";
                       if (line.type === "Mental") color = "text-blue-400";
+                      if (line.type === "Fire") color = "text-orange-400";
 
                       return (
                         <div key={idx} className={color}>
