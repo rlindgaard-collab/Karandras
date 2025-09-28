@@ -56,7 +56,7 @@ export const characterData = {
       },
     },
     {
-      name: "Longbow",
+      name: "Longbow +2",
       type: "Ranged",
       notes: "Composite longbow reinforced with cold iron tips.",
       attacks: {
