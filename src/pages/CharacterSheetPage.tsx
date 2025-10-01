@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/Card";
-import { Swords, ListChecks, Backpack, StickyNote, RotateCcw } from "lucide-react";
+import { Swords, ListChecks, Backpack, StickyNote, RotateCcw, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import { characterData } from "../data/characterData";
 
@@ -13,6 +13,7 @@ const tabs = [
 
 type TabId = typeof tabs[number]["id"];
 type RollResult = { d20: number; total: number };
+type BreakdownLine = { text: string; type?: string };
 
 export default function CharacterSheetPage() {
   const [activeTab, setActiveTab] = useState<TabId>("battle");
@@ -31,7 +32,7 @@ export default function CharacterSheetPage() {
   const [initiativeResult, setInitiativeResult] = useState<RollResult | null>(null);
   const [lastRoll, setLastRoll] = useState<string>("");
 
-  // Tooltip state
+  // Tooltip
   const [tooltip, setTooltip] = useState<{ from: "fort" | "ref" | "will"; text: string } | null>(
     null
   );
@@ -43,7 +44,21 @@ export default function CharacterSheetPage() {
 
   // Damage state
   const [damageResult, setDamageResult] = useState<number | null>(null);
-  const [damageBreakdown, setDamageBreakdown] = useState<string>("");
+  const [damageBreakdown, setDamageBreakdown] = useState<BreakdownLine[]>([]);
+
+  // Toggle buttons state
+  const [toggles, setToggles] = useState<[boolean, boolean, boolean]>([false, false, false]);
+
+  // Weapon state
+  const [activeWeaponIndex, setActiveWeaponIndex] = useState(() => {
+    const saved = localStorage.getItem("activeWeaponIndex");
+    return saved ? parseInt(saved, 10) : characterData.defaultWeaponIndex;
+  });
+  const activeWeapon = characterData.weapons[activeWeaponIndex];
+
+  useEffect(() => {
+    localStorage.setItem("activeWeaponIndex", activeWeaponIndex.toString());
+  }, [activeWeaponIndex]);
 
   useEffect(() => {
     localStorage.setItem("currentHp", currentHp.toString());
@@ -59,7 +74,7 @@ export default function CharacterSheetPage() {
   const effectiveHp = pendingHp !== null ? pendingHp : currentHp;
   const diff = pendingHp !== null ? pendingHp - currentHp : 0;
 
-  // Generel rul-funktion
+  // Save/init rul
   const rollCheck = (
     type: "fort" | "ref" | "will" | "initiative",
     current: RollResult | null,
@@ -75,52 +90,55 @@ export default function CharacterSheetPage() {
     const d20 = Math.floor(Math.random() * 20) + 1;
     const total = d20 + modifier;
     setResult({ d20, total });
-    setLastRoll(
-      `${type.charAt(0).toUpperCase() + type.slice(1)}: ${d20} (d20) + ${modifier} (modifier) = ${total}`
-    );
-  };
 
-  // Damage rul
-  const rollDamage = (damageBonus: number) => {
-    const { dice } = characterData.damage;
-    let total = damageBonus;
-    let parts: string[] = [];
-
-    dice.forEach((d) => {
-      let rolls: number[] = [];
-      for (let i = 0; i < d.count; i++) {
-        const roll = Math.floor(Math.random() * d.die) + 1;
-        rolls.push(roll);
-        total += roll;
-      }
-      parts.push(`${d.count}d${d.die} (${d.type}): [${rolls.join(", ")}]`);
-    });
-
-    parts.push(`Damage Bonus: +${damageBonus}`);
-    setDamageResult(total);
-    setDamageBreakdown(parts.join(" + "));
+    setLastRoll(`${type.toUpperCase()}: ${d20} (d20) + ${modifier} (modifier) = ${total}`);
   };
 
   // Attack rul
   const rollAttack = () => {
+    if (!activeWeapon) return;
+
     if (attackResult) {
       setAttackResult(null);
       setAttackCount((prev) => prev + 1);
       setDamageResult(null);
-      setDamageBreakdown("");
+      setDamageBreakdown([]);
       return;
     }
 
     const step = attackCount > 3 ? 3 : attackCount;
-    const { toHit, damageBonus } = characterData.attacks[step as 1 | 2 | 3];
-
+    const { toHit, damageBonus } = activeWeapon.attacks[step as 1 | 2 | 3];
     const d20 = Math.floor(Math.random() * 20) + 1;
     const total = d20 + toHit;
 
     setAttackResult({ d20, total });
     setAttackLog(`Attack ${attackCount}: ${d20} (d20) + ${toHit} (to-hit) = ${total}`);
 
-    rollDamage(damageBonus);
+    // Damage rul
+    let totalDmg = damageBonus;
+    const breakdownLines: BreakdownLine[] = [];
+
+    activeWeapon.damage.dice.forEach((dieDef) => {
+      const rolls: number[] = [];
+      let subtotal = 0;
+      for (let i = 0; i < dieDef.count; i++) {
+        const roll = Math.floor(Math.random() * dieDef.die) + 1;
+        rolls.push(roll);
+        subtotal += roll;
+        totalDmg += roll;
+      }
+      breakdownLines.push({
+        text: `${dieDef.count}d${dieDef.die} (${dieDef.type}): [${rolls.join(", ")}] = ${subtotal}`,
+        type: dieDef.type,
+      });
+    });
+
+    breakdownLines.push({ text: `Damage Bonus: +${damageBonus}` });
+    breakdownLines.push({ text: `-----------------` });
+    breakdownLines.push({ text: `Total Damage: ${totalDmg}` });
+
+    setDamageResult(totalDmg);
+    setDamageBreakdown(breakdownLines);
   };
 
   const resetAttack = () => {
@@ -128,7 +146,15 @@ export default function CharacterSheetPage() {
     setAttackResult(null);
     setAttackLog("");
     setDamageResult(null);
-    setDamageBreakdown("");
+    setDamageBreakdown([]);
+  };
+
+  const toggleButton = (index: 0 | 1 | 2) => {
+    setToggles(prev => {
+      const newToggles: [boolean, boolean, boolean] = [...prev];
+      newToggles[index] = !newToggles[index];
+      return newToggles;
+    });
   };
 
   // Save button
@@ -149,10 +175,10 @@ export default function CharacterSheetPage() {
     if (result) {
       if (result.d20 === 1) {
         classes =
-          "w-full p-3 rounded border text-center transition-all bg-red-900/60 border-red-400 shadow-[0_0_20px_rgba(239,68,68,0.8)]";
+          "w-full p-3 rounded border text-center transition-all bg-red-900/60 border-red-400";
       } else {
         classes =
-          "w-full p-3 rounded border text-center transition-all bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]";
+          "w-full p-3 rounded border text-center transition-all bg-emerald-900/60 border-emerald-400";
       }
     }
 
@@ -196,10 +222,7 @@ export default function CharacterSheetPage() {
             <CardTitle className="flex items-center gap-2 text-emerald-400 text-lg sm:text-xl">
               Character Sheet
             </CardTitle>
-            <Link
-              to="/"
-              className="text-sm text-emerald-400 hover:underline whitespace-nowrap"
-            >
+            <Link to="/" className="text-sm text-emerald-400 hover:underline whitespace-nowrap">
               ← Back
             </Link>
           </div>
@@ -214,7 +237,7 @@ export default function CharacterSheetPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-sm sm:text-base font-medium rounded-t-lg transition-all flex-shrink-0 ${
                     isActive
-                      ? "bg-emerald-800/40 text-emerald-300 border-b-2 border-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.4)]"
+                      ? "bg-emerald-800/40 text-emerald-300 border-b-2 border-emerald-400"
                       : "text-gray-400 hover:text-emerald-300"
                   }`}
                 >
@@ -225,35 +248,47 @@ export default function CharacterSheetPage() {
           </div>
         </CardHeader>
 
-        <CardContent className="min-h-[300px] sm:min-h-[400px] text-gray-300 text-sm sm:text-base leading-relaxed space-y-6">
+        <CardContent className="space-y-6">
           {activeTab === "battle" && (
             <div>
-              <h2 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-4">
-                Battle
-              </h2>
-
               {/* AC + Speed */}
-              <div className="mb-6 p-3 rounded bg-gray-800/60 border border-gray-700 text-center">
-                <span className="block text-xs text-gray-400">AC</span>
-                <span className="text-lg font-semibold text-emerald-300">
-                  {characterData.ac}
-                </span>
-                <span className="block text-xs text-gray-400 mt-1">
-                  Speed: {characterData.speed} ft
-                </span>
+              <div className="mb-6 p-3 rounded bg-gray-800/60 border border-gray-700">
+                <div className="flex justify-center items-center relative">
+                  <div className="text-center flex-1">
+                    <span className="block text-xs text-gray-400">AC</span>
+                    <span className="text-lg font-semibold text-emerald-300">{characterData.ac}</span>
+                    <span className="block text-xs text-gray-400 mt-1">
+                      Speed: {characterData.speed} ft
+                    </span>
+                  </div>
+                  <div className="absolute right-0 flex flex-col gap-1">
+                    {toggles.map((isActive, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => toggleButton(index as 0 | 1 | 2)}
+                        className={`w-6 h-6 rounded-full border-2 transition-all ${
+                          isActive
+                            ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.6)]'
+                            : 'bg-gray-700 border-gray-500 hover:border-gray-400'
+                        } flex items-center justify-center`}
+                      >
+                        <Flame className={`w-3 h-3 ${
+                          isActive ? 'text-white' : 'text-gray-400'
+                        }`} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* HP Slider */}
               <div className="mb-6 relative">
-                <label className="block text-sm text-gray-400 mb-2">
-                  Hit Points
-                </label>
+                <label className="block text-sm text-gray-400 mb-2">Hit Points</label>
                 {diff !== 0 && (
                   <div
-                    className={`absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-bold transition-all duration-300 animate-pulse ${
-                      diff > 0
-                        ? "text-emerald-400 drop-shadow-[0_0_6px_rgba(16,185,129,0.9)]"
-                        : "text-red-400 drop-shadow-[0_0_6px_rgba(239,68,68,0.9)]"
+                    className={`absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-bold animate-pulse ${
+                      diff > 0 ? "text-emerald-400" : "text-red-400"
                     }`}
                   >
                     {diff > 0 ? `+${diff}` : diff}
@@ -269,13 +304,7 @@ export default function CharacterSheetPage() {
                   style={{
                     background: `linear-gradient(
                       to right,
-                      ${
-                        diff > 0
-                          ? "rgba(16,185,129,0.7)"
-                          : diff < 0
-                          ? "rgba(239,68,68,0.7)"
-                          : "rgba(16,185,129,0.5)"
-                      } ${(effectiveHp / characterData.hp) * 100}%,
+                      ${diff < 0 ? "rgba(239,68,68,0.7)" : "rgba(16,185,129,0.7)"} ${(effectiveHp / characterData.hp) * 100}%,
                       rgba(31,41,55,0.8) ${(effectiveHp / characterData.hp) * 100}%
                     )`,
                   }}
@@ -326,11 +355,11 @@ export default function CharacterSheetPage() {
                       characterData.initiative
                     )
                   }
-                  className={`p-3 rounded border text-center transition-all ${
+                  className={`p-3 rounded border text-center ${
                     initiativeResult
                       ? initiativeResult.d20 === 1
-                        ? "bg-red-900/60 border-red-400 shadow-[0_0_20px_rgba(239,68,68,0.8)]"
-                        : "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                        ? "bg-red-900/60 border-red-400"
+                        : "bg-emerald-900/60 border-emerald-400"
                       : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
                   }`}
                 >
@@ -345,70 +374,100 @@ export default function CharacterSheetPage() {
                 </button>
               </div>
 
+              {/* Weapon selection */}
+              <div className="mt-6 flex gap-2 flex-wrap">
+                {characterData.weapons.map((w, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveWeaponIndex(idx)}
+                    className={`px-2 py-1 rounded border text-xs font-medium transition-all ${
+                      activeWeaponIndex === idx
+                        ? "bg-emerald-700 border-emerald-400 text-emerald-200"
+                        : "bg-gray-700 border-gray-500 text-gray-300 hover:bg-gray-600"
+                    }`}
+                  >
+                    {w.name}
+                  </button>
+                ))}
+              </div>
+
               {/* Attack Knapsystem */}
               <div className="relative mt-6">
                 <button
                   type="button"
                   onClick={rollAttack}
-                  className={`w-full p-3 rounded border text-center transition-all ${
+                  className={`w-full p-3 rounded border text-center ${
                     attackResult
                       ? attackResult.d20 === 1
-                        ? "bg-red-900/60 border-red-400 shadow-[0_0_20px_rgba(239,68,68,0.8)]"
-                        : "bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                        ? "bg-red-900/60 border-red-400"
+                        : "bg-emerald-900/60 border-emerald-400"
                       : "bg-gray-800/60 border-gray-700 hover:bg-emerald-900/40"
                   }`}
                 >
                   <span className="block text-xs text-gray-400">Attack {attackCount}</span>
-                  <span
-                    className={`text-lg font-semibold ${
-                      attackResult?.d20 === 1 ? "text-red-300" : "text-emerald-300"
-                    }`}
-                  >
+                  <span className="text-lg font-semibold text-emerald-300">
                     {attackResult
                       ? `AC ${attackResult.total}`
                       : (() => {
                           const step = attackCount > 3 ? 3 : attackCount;
-                          const { toHit } = characterData.attacks[step as 1 | 2 | 3];
-                          return toHit >= 0 ? `+${toHit}` : `${toHit}`;
+                          return `+${activeWeapon.attacks[step as 1 | 2 | 3].toHit}`;
                         })()}
                   </span>
                 </button>
-
-                {/* Reset ikon */}
                 <button
                   type="button"
                   onClick={resetAttack}
                   className="absolute top-2 right-2 p-1 rounded-full bg-gray-700 hover:bg-gray-600 border border-gray-500"
-                  title="Reset attacks"
                 >
                   <RotateCcw className="w-4 h-4 text-gray-300" />
                 </button>
               </div>
 
-              {attackLog && <div className="mt-2 text-sm text-gray-400">{attackLog}</div>}
+              {/* Damage Box */}
+              <div className="mt-4 space-y-2">
+                <div className="w-full p-3 rounded border text-center bg-gray-800/60 border-gray-700 shadow">
+                  <span className="block text-xs text-gray-400">Damage</span>
 
-              {/* Damage visning */}
-              {damageResult !== null && (
-                <div className="mt-4 space-y-2">
-                  {/* Damage Total */}
-                  <div
-                    className="w-full p-3 rounded border text-center transition-all
-                               bg-emerald-900/60 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
-                  >
-                    <span className="block text-xs text-gray-400">Damage</span>
-                    <span className="text-2xl font-bold text-emerald-300">
-                      {damageResult}
+                  {damageResult !== null ? (
+                    <>
+                      <span className="text-lg font-semibold text-emerald-300">{damageResult}</span>
+                      <span className="block text-xs text-gray-400">
+                        Using {activeWeapon.name}
+                      </span>
+                      <span className="block text-xs text-emerald-400">
+                        Damage Type: {activeWeapon.damage.type}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-lg font-semibold text-emerald-400">
+                      {activeWeapon.name}
                     </span>
-                    {/* Viser overordnet damage type */}
-                    <span className="block text-xs text-gray-400 mt-1">
-                      Type: {characterData.damage.type}
-                    </span>
-                  </div>
-
-                  {/* Breakdown */}
-                  <div className="text-sm text-gray-400">{damageBreakdown}</div>
+                  )}
                 </div>
-              )}
+
+                {/* Attack log */}
+                {attackLog && (
+                  <div className="text-sm text-gray-400">{attackLog}</div>
+                )}
+
+                {damageResult !== null && (
+                  <div className="text-sm space-y-1">
+                    {damageBreakdown.map((line, idx) => {
+                      let color = "text-gray-300";
+                      if (line.type === "Slashing") color = "text-red-400";
+                      if (line.type === "Piercing") color = "text-yellow-400";
+                      if (line.type === "Spirit") color = "text-purple-400";
+                      if (line.type === "Mental") color = "text-blue-400";
+                      return (
+                        <div key={idx} className={color}>
+                          {line.text}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
 
               {tooltip && (
                 <div className="mt-4 p-3 rounded bg-gray-800/90 border border-emerald-500 text-sm text-emerald-200 shadow-lg">
@@ -417,9 +476,9 @@ export default function CharacterSheetPage() {
               )}
 
               {lastRoll && (
-                <div className="mt-4 text-sm text-gray-400" aria-live="polite">
+                <pre className="mt-4 text-sm text-gray-400 whitespace-pre-line" aria-live="polite">
                   {lastRoll}
-                </div>
+                </pre>
               )}
             </div>
           )}
