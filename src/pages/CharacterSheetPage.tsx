@@ -398,11 +398,11 @@ export default function CharacterSheetPage() {
 
                   {damageResult !== null ? (
                     <>
-                      <span className="text-2xl font-bold text-emerald-300">{damageResult}</span>
-                      <span className="block text-xs text-gray-400 mt-1">
+                      <span className="text-lg font-semibold text-emerald-300">{damageResult}</span>
+                      <span className="block text-xs text-gray-400">
                         Using {activeWeapon.name}
                       </span>
-                      <span className="block text-xs text-emerald-400 mt-1">
+                      <span className="block text-xs text-emerald-400">
                         Damage Type: {activeWeapon.damage.type}
                       </span>
                     </>
