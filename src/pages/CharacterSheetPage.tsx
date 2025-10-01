@@ -253,27 +253,27 @@ export default function CharacterSheetPage() {
             <div>
               {/* AC + Speed */}
               <div className="mb-6 p-3 rounded bg-gray-800/60 border border-gray-700">
-                <div className="flex justify-between items-center">
-                  <div className="text-center">
+                <div className="flex justify-center items-center relative">
+                  <div className="text-center flex-1">
                     <span className="block text-xs text-gray-400">AC</span>
                     <span className="text-lg font-semibold text-emerald-300">{characterData.ac}</span>
                     <span className="block text-xs text-gray-400 mt-1">
                       Speed: {characterData.speed} ft
                     </span>
                   </div>
-                  <div className="flex flex-col gap-2">
+                  <div className="absolute right-0 flex flex-col gap-1">
                     {toggles.map((isActive, index) => (
                       <button
                         key={index}
                         type="button"
                         onClick={() => toggleButton(index as 0 | 1 | 2)}
-                        className={`w-8 h-8 rounded-full border-2 transition-all ${
+                        className={`w-6 h-6 rounded-full border-2 transition-all ${
                           isActive
                             ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.6)]'
                             : 'bg-gray-700 border-gray-500 hover:border-gray-400'
                         } flex items-center justify-center`}
                       >
-                        <Flame className={`w-4 h-4 ${
+                        <Flame className={`w-3 h-3 ${
                           isActive ? 'text-white' : 'text-gray-400'
                         }`} />
                       </button>
