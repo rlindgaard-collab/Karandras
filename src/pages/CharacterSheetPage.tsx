@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/Card";
-import { Swords, ListChecks, Backpack, StickyNote, RotateCcw } from "lucide-react";
+import { Swords, ListChecks, Backpack, StickyNote, RotateCcw, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import { characterData } from "../data/characterData";
 
@@ -261,7 +261,7 @@ export default function CharacterSheetPage() {
                       Speed: {characterData.speed} ft
                     </span>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2">
                     {toggles.map((isActive, index) => (
                       <button
                         key={index}
@@ -271,8 +271,12 @@ export default function CharacterSheetPage() {
                           isActive
                             ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.6)]'
                             : 'bg-gray-700 border-gray-500 hover:border-gray-400'
-                        }`}
-                      />
+                        } flex items-center justify-center`}
+                      >
+                        <Flame className={`w-4 h-4 ${
+                          isActive ? 'text-white' : 'text-gray-400'
+                        }`} />
+                      </button>
                     ))}
                   </div>
                 </div>
