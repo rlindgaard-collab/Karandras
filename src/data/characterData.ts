@@ -47,7 +47,7 @@ export const characterData = {
         3: { toHit: 22, damageBonus: 14 },
       },
       damage: {
-        type: "Cold Iron", "holy",
+        type: "Cold Iron",
         dice: [
           { count: 3, die: 6, type: "Slashing" },
           { count: 1, die: 6, type: "Mental" },
