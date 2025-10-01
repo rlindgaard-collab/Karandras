@@ -46,6 +46,9 @@ export default function CharacterSheetPage() {
   const [damageResult, setDamageResult] = useState<number | null>(null);
   const [damageBreakdown, setDamageBreakdown] = useState<BreakdownLine[]>([]);
 
+  // Toggle buttons state
+  const [toggles, setToggles] = useState<[boolean, boolean, boolean]>([false, false, false]);
+
   // Weapon state
   const [activeWeaponIndex, setActiveWeaponIndex] = useState(() => {
     const saved = localStorage.getItem("activeWeaponIndex");
@@ -146,6 +149,14 @@ export default function CharacterSheetPage() {
     setDamageBreakdown([]);
   };
 
+  const toggleButton = (index: 0 | 1 | 2) => {
+    setToggles(prev => {
+      const newToggles: [boolean, boolean, boolean] = [...prev];
+      newToggles[index] = !newToggles[index];
+      return newToggles;
+    });
+  };
+
   // Save button
   const SaveButton = ({
     label,
@@ -241,12 +252,30 @@ export default function CharacterSheetPage() {
           {activeTab === "battle" && (
             <div>
               {/* AC + Speed */}
-              <div className="mb-6 p-3 rounded bg-gray-800/60 border border-gray-700 text-center">
-                <span className="block text-xs text-gray-400">AC</span>
-                <span className="text-lg font-semibold text-emerald-300">{characterData.ac}</span>
-                <span className="block text-xs text-gray-400 mt-1">
-                  Speed: {characterData.speed} ft
-                </span>
+              <div className="mb-6 p-3 rounded bg-gray-800/60 border border-gray-700">
+                <div className="flex justify-between items-center">
+                  <div className="text-center">
+                    <span className="block text-xs text-gray-400">AC</span>
+                    <span className="text-lg font-semibold text-emerald-300">{characterData.ac}</span>
+                    <span className="block text-xs text-gray-400 mt-1">
+                      Speed: {characterData.speed} ft
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    {toggles.map((isActive, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => toggleButton(index as 0 | 1 | 2)}
+                        className={`w-8 h-8 rounded-full border-2 transition-all ${
+                          isActive
+                            ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.6)]'
+                            : 'bg-gray-700 border-gray-500 hover:border-gray-400'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* HP Slider */}
