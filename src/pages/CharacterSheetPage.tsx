@@ -348,7 +348,7 @@ export default function CharacterSheetPage() {
                     key={idx}
                     type="button"
                     onClick={() => setActiveWeaponIndex(idx)}
-                    className={`px-3 py-2 rounded border text-sm font-medium transition-all ${
+                    className={`px-2 py-1 rounded border text-xs font-medium transition-all ${
                       activeWeaponIndex === idx
                         ? "bg-emerald-700 border-emerald-400 text-emerald-200"
                         : "bg-gray-700 border-gray-500 text-gray-300 hover:bg-gray-600"
